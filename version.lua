@@ -1,5 +1,5 @@
 --- @class stdlib_version
---- Simple version comparison library Modified by Nexela for Factorio
+--- Simple version comparison library Modified by Nexela, curisoity for Factorio
 ---
 --- @copyright Kong Inc. Thijs Schreijer [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 ---
@@ -43,19 +43,16 @@ end
 setmetatable(Version, { __call = __call })
 
 local VERSION_PATTERN = '^(%d+)%.(%d+)%.(%d+)$'
-local version_mt
 
 --- @param version string|Version
 --- @return number
 local function as_version_number(version)
-    if getmetatable(version) == version_mt then ---@cast version Version
-        return version.version
-    end
+    if version.version then return version.version end
     local major, minor, patch = string.match(version, VERSION_PATTERN)
     return (major * 65536 + minor) * 65536 + patch
 end
 
-version_mt = {
+local version_mt = {
     --- @param self Version
     --- @return string
     __tostring = function(self)
@@ -199,8 +196,8 @@ end
 --- @param version string|Version A Version object or string of 3 groups of numbers seperated by dots.
 --- @return Version
 function Version.new(version)
-    if getmetatable(version) == version_mt then ---@cast version Version
-        local new = {}
+    if version.version then ---@cast version Version
+        local new = {} ---@type Version
         for k, v in pairs(version) do
             new[k] = v
         end
@@ -233,10 +230,8 @@ end
 --- @return Version.range
 function Version.range(from, to)
     assert(from or to, 'At least one parameter is required')
-    ---@cast from Version
-    from = Version.new(from or '0.0.0')
-    ---@cast to Version
-    to = Version.new(to or from)
+    from = Version.new(from or '0.0.0') ---@cast from Version
+    to = Version.new(to or from) ---@cast to Version
     assert(from <= to, 'from must be less than to')
     --- @class Version.range
     local range = {
