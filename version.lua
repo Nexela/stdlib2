@@ -1,4 +1,5 @@
---- Simple version comparison library Modified by nexela for Factorio
+--- @class stdlib_version
+--- Simple version comparison library Modified by Nexela for Factorio
 ---
 --- @copyright Kong Inc. Thijs Schreijer [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 ---
@@ -34,7 +35,6 @@
 --- print(version("5.2.0"))                    -- "5.2.0"
 ---
 --- ```
---- @class stdlib_version
 --- @overload fun(version: Version|string):Version
 local Version = {}
 local __call = function(_, version)
@@ -42,67 +42,43 @@ local __call = function(_, version)
 end
 setmetatable(Version, { __call = __call })
 
+local VERSION_PATTERN = '^(%d+)%.(%d+)%.(%d+)$'
 local version_mt
 
 --- @param version string|Version
---- @return Version
-local function as_version(version)
-    if getmetatable(version) == version_mt then
-        ---@cast version Version
-        return version
+--- @return number
+local function as_version_number(version)
+    if getmetatable(version) == version_mt then ---@cast version Version
+        return version.version
     end
-    return Version.new(version)
+    local major, minor, patch = string.match(version, VERSION_PATTERN)
+    return (major * 65536 + minor) * 65536 + patch
 end
 
 version_mt = {
     --- @param self Version
     --- @return string
     __tostring = function(self)
-        return self.major .. '.' .. self.minor .. '.' .. self.rev
+        return self.string
     end,
-
 
     --- @param self Version
     --- @param other Version
     __eq = function(self, other)
-        local major = self.major == other.major
-        local minor = self.minor == other.minor
-        local rev = self.rev == other.rev
-        return major and minor and rev
+        return self.version == other.version
     end,
-
 
     --- @param self Version|string
     --- @param other Version|string
     __lt = function(self, other)
-        self = as_version(self)
-        other = as_version(other)
-        if self.major < other.major then return true end
-        if self.major > other.major then return false end
-
-        if self.minor < other.minor then return true end
-        if self.minor > other.minor then return false end
-
-        if self.rev < other.rev then return true end
-        return false
+        return as_version_number(self) < as_version_number(other)
     end,
-
 
     --- @param self Version|string
     --- @param other Version|string
     __le = function(self, other)
-        self = as_version(self)
-        other = as_version(other)
-        if self.major < other.major then return true end
-        if self.major > other.major then return false end
-
-        if self.minor < other.minor then return true end
-        if self.minor > other.minor then return false end
-
-        if self.rev <= other.rev then return true end
-        return false
+        return as_version_number(self) <= as_version_number(other)
     end
-
 }
 
 --- @class Version.range
@@ -111,9 +87,8 @@ local version_range = {
     --- @param v string|Version
     --- @return boolean
     matches = function(self, v)
-        v = as_version(v)
         return (v >= self.from) and (v <= self.to)
-    end,
+    end
 }
 local version_range_mt = {
     __index = version_range,
@@ -157,10 +132,10 @@ local version_set = {
         end
         return self
     end,
+
     --- @param self Version.set
     --- @param v string|Version
     matches = function(self, v)
-        v = as_version(v)
         local success = false
         for _, range in pairs(self.ok) do
             if range:matches(v) then
@@ -224,24 +199,26 @@ end
 --- @param version string|Version A Version object or string of 3 groups of numbers seperated by dots.
 --- @return Version
 function Version.new(version)
-    if getmetatable(version) == version_mt then
-        ---@cast version Version
-        return setmetatable({ major = version.major, minor = version.minor, rev = version.rev }, version_mt)
+    if getmetatable(version) == version_mt then ---@cast version Version
+        local new = {}
+        for k, v in pairs(version) do
+            new[k] = v
+        end
+        return setmetatable(new, version_mt)
     end
+
     assert(type(version) == 'string', ('%s is not a string'):format(version))
+    local major, minor, patch = string.match(version, VERSION_PATTERN)
 
     --- @class Version
-    --- @field major number
-    --- @field minor number
-    --- @field rev number
-    local v = {}
-    for major, minor, rev in string.gmatch(version, '(%d+)%.(%d+)%.(%d+)') do
-        v.major = tonumber(major)
-        v.minor = tonumber(minor)
-        v.rev = tonumber(rev)
-    end
-    assert(v.major and v.minor and v.rev, 'Malformed version expected n.n.n')
-    --- @cast v Version
+    local v = {
+        major = tonumber(major), ---@type number
+        minor = tonumber(minor), ---@type number
+        patch = tonumber(patch), ---@type number
+        version = (major * 65536 + minor) * 65536 + patch, ---@type number
+        string = version ---@type string
+    }
+
     return setmetatable(v, version_mt)
 end
 
