@@ -152,12 +152,11 @@ do -- Constructor stuff
 
         local typeof = type(x)
         if typeof == 'table' then
-            ---@cast x table
-            x, y = x.x or x[1], x.y or x[2]
+            local pos = x ---@type MapPosition
+            x, y = pos.x or pos[1], pos.y or pos[2]
             assert(x and y)
             return new(x, y)
         end
-        --- @cast x double
         if typeof == 'number' then return new(x, y or 0) end
         --- @cast x string
         if typeof == 'string' then return Position.from_string(x) end
