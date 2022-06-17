@@ -29,7 +29,6 @@ local as_dictionary = function(list)
     if typeof == 'nil' then return {} end
     if typeof == 'string' or typeof == 'number' then return { [list] = true } end
     if typeof == 'table' then
-        ---@diagnostic disable-next-line: need-check-nil
         if list.__dictionary then return list.__dictionary end
         if #list == table_size(list) then
             local dictionary = {}

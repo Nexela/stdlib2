@@ -209,8 +209,7 @@ function table.for_n_of(tbl, from_k, n, callback, _next, ...)
     if not _next then
         -- Verify start key exists, else start from scratch
         if from_k and not tbl[from_k] then from_k = nil end
-        -- Use default `next`
-        _next = next
+        _next = next --- @cast _next -? Use default `next`
     end
 
     local delete
@@ -222,7 +221,7 @@ function table.for_n_of(tbl, from_k, n, callback, _next, ...)
     for _ = 1, n, 1 do
         local v
         if not delete then prev = from_k end
-        from_k, v = _next(tbl, from_k, ...) ---@diagnostic disable-line: need-check-nil
+        from_k, v = _next(tbl, from_k, ...)
         if delete then tbl[delete] = nil end
 
         if from_k then
