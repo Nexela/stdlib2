@@ -1,4 +1,5 @@
-local Color
+--- @class stdlib.Color_class
+local Color = {}
 
 local col_mt
 

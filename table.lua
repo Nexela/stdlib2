@@ -4,7 +4,7 @@
 --- **NOTE:** Several functions in this module will only work with [arrays](https://www.lua.org/pil/11.1.html),
 --- which are tables with sequentially numbered keys. All table functions will work with arrays as well, but
 --- array functions **will not** work with tables.
---- @class stdlib_table: tablelib
+--- @class stdlib.tablelib: tablelib
 --- @alias result any
 --- @alias table_array any[]
 local table = {}
@@ -193,13 +193,11 @@ end
 --- end)
 --- ```
 --- @generic k, v
---- @alias delete boolean
---- @alias abort boolean
 --- @param tbl table The table to iterate over.
 --- @param from_k k The key to start iteration at, or `nil` to start at the beginning of `tbl`. If the key does not exist in `tbl`, it will be treated as `nil`, _unless_ a custom `_next` function is used.
 --- @param n number The number of items to iterate.
---- @param callback fun(V: v, from_k: k, ...):result, delete, abort #Receives `value`, `key`, `...` as parameters.
---- @param _next? fun(tbl: table<k, v>, index:k|nil, ...):k, v #A custom `next()` function. If not provided, the default `next()` will be used. Reveives `tbl`, `key`, `...` as parameters.
+--- @param callback fun(v: v, k: k, ...):result, boolean, boolean Receives `value`, `key`, `...` as parameters.
+--- @param _next? fun(tbl: table<k, v>, index:k|nil, ...):k, v A custom `next()` function. If not provided, the default `next()` will be used. Receives `tbl`, `key`, `...` as parameters.
 --- @vararg ...? Additional parameters for callback/next if needed.
 --- @return any next_key Where the iteration ended. Can be any valid table key, or `nil`. Pass this as `from_k` in the next call to `for_n_of` for `tbl`.
 --- @return table<k, result> results The results compiled from the first return of `callback`.
@@ -263,7 +261,7 @@ function table.filter(tbl, filter, array_insert, ...)
     local output = {}
     local i = 0
     for k, v in pairs(tbl) do
-        if filter(v, k) then
+        if filter(v, k, ...) then
             if array_insert then
                 i = i + 1
                 output[i] = v
@@ -369,7 +367,7 @@ function table.partial_sort(arr, from_index, iterations, comp, ...)
         if not key then return nil end
         local i = j - 1
 
-        while i > 0 and comp(key, arr[i]) do
+        while i > 0 and comp(key, arr[i], ...) do
             arr[i + 1] = arr[i]
             i = i - 1
         end

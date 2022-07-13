@@ -6,5 +6,21 @@
     "author": "Nexela, Afforess",
     "contact": "",
     "homepage": "https://github.com/Afforess/Factorio-Stdlib",
-    "description": "The Factorio Standard Library is a project to bring Factorio modders high-quality utilities and tools."
+    "description": "The Factorio Standard Library is a project to bring Factorio modders high-quality utilities and tools.",
+    "package": {
+        "ignore": [
+            "wiki/**",
+            "spec/**",
+            "tools/**",
+            "doc/**",
+            "faketorio/**"
+        ],
+        "scripts": {
+            "datestamp": ".publish/datestamp.sh",
+            "prepackage": ".publish/prepackage.sh",
+            "version": ".publish/version.sh",
+            "prepublish": ".publish/prepublish.sh",
+            "publish": ".publish/publish.sh"
+        }
+    }
 }

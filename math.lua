@@ -1,6 +1,6 @@
 --- Extends the [Lua 5.2 math library](https://www.lua.org/manual/5.2/manual.html#6.6),
 --- adding more capabilities and functions.
---- @class stdlib_math: mathlib
+--- @class stdlib.mathlib: mathlib
 local math = {}
 
 local unpack = table.unpack
@@ -159,7 +159,7 @@ end
 --- @param x number
 --- @return number
 function math.sign(x)
-    return (x >= 0 and 1) or -1
+    return (x > 0 and 1) or (x < 0 and -1) or 0
 end
 
 --- Linearly interpolate between `num1` and `num2` by `amount`.
