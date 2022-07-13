@@ -1,4 +1,25 @@
+#lua files in root
+#*.lua
+test.lua
+
+# Exclude the api docs directory
+stdlib-docs/
+
+.temp/
+.trash/
+.history/
 .vscode/
+
+# Exclude the output directory
+.output/
+.build/
+
+# vim swapfiles
+.*.swp
+
+# {l,c}tags
+/tags
+/stdlib/tags
 
 # Ignore temp.lua files
 *.ign.lua

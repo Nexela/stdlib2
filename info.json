@@ -1,26 +1,29 @@
 {
-    "name": "stdlib2",
-    "version": "1.0.0",
-    "factorio_version": "1.1",
-    "title": "Factorio Standard Library 2",
-    "author": "Nexela, Afforess",
-    "contact": "",
-    "homepage": "https://github.com/Afforess/Factorio-Stdlib",
-    "description": "The Factorio Standard Library is a project to bring Factorio modders high-quality utilities and tools.",
-    "package": {
-        "ignore": [
-            "wiki/**",
-            "spec/**",
-            "tools/**",
-            "doc/**",
-            "faketorio/**"
-        ],
-        "scripts": {
-            "datestamp": ".publish/datestamp.sh",
-            "prepackage": ".publish/prepackage.sh",
-            "version": ".publish/version.sh",
-            "prepublish": ".publish/prepublish.sh",
-            "publish": ".publish/publish.sh"
-        }
+  "name": "stdlib",
+  "version": "2.0.0",
+  "factorio_version": "1.1",
+  "title": "Factorio Standard Library",
+  "author": "Afforess",
+  "contact": "",
+  "dependencies": [
+    "base >= 1.1.61"
+  ],
+  "homepage": "https://github.com/Afforess/Factorio-Stdlib",
+  "description": "The Factorio Standard Library is a project to bring Factorio modders high-quality, commonly-required utilities and tools.",
+  "package": {
+    "ignore": [
+      "wiki/**",
+      "spec/**",
+      "tools/**",
+      "doc/**",
+      "faketorio/**"
+    ],
+    "scripts": {
+      "datestamp": ".publish/datestamp.sh",
+      "prepackage": ".publish/prepackage.sh",
+      "version": ".publish/version.sh",
+      "prepublish": ".publish/prepublish.sh",
+      "publish": ".publish/publish.sh"
     }
+  }
 }

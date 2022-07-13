@@ -2,6 +2,8 @@
     "completion.requireSeparator": "/",
     "diagnostics.disable": [],
     "diagnostics.globals": [
+        "describe",
+        "it",
         "global",
         "log",
         "data",
@@ -13,7 +15,7 @@
         "__DebugAdapter",
         "__Profiler"
     ],
-    "diagnostics.ignoredFiles": "Opened",
+    "diagnostics.ignoredFiles": "Disable",
     "diagnostics.libraryFiles": "Opened",
     "diagnostics.neededFileStatus": {
         "codestyle-check": "None",
@@ -57,7 +59,8 @@
     "workspace.ignoreDir": [
         ".vscode/",
         "base/scenarios/",
-        "diffed.lua"
+        "diffed.lua",
+        "config.ld"
     ],
     "workspace.library": [
         "/home/nexela/Media/Develop/Lua/Factorio/.vscode/factorio/",

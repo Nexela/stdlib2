@@ -1,380 +1,532 @@
---- @class PositionClass
---- @overload fun(): Position
---- @overload fun(pos: any): Position
---- @overload fun(x: double, y: double): Position
+---@class PositionClass
+---@operator call (AnyPosOrVec):Position
+---@field Area AreaClass?
 local PositionClass = {}
 
---- @alias POSITION Position|MapPosition|ChunkPos|ChunkPosition|PixelPos|TilePos|TilePosition|Vector
-
-local floor, ceil, abs, atan2, deg, acos = math.floor, math.ceil, math.abs, math.atan2, math.deg, math.acos
-local pi = math.pi
-local setmetatable, assert = setmetatable, assert
-
-local meta = {}
-
---- @class Position: MapPosition
+---@class Position: MapPosition
 local Position = {}
-local position_mt
+local position_meta = {}
 
---- @class ChunkPos: ChunkPosition
-local ChunkPos = {}
-local chunk_mt
+local Direction = require("__stdlib__/direction")
+local math = require("__stdlib__/math") --[[@as mathlibext]]
 
---- @class PixelPos: MapPosition
---- @field x double
---- @field y double
-local PixelPos = {}
-local pixel_mt
+local floor, ceil, round, abs = math.floored, math.ceiled, math.round, math.abs
+local atan2, deg, acos, sqrt = math.atan2, math.deg, math.acos, math.sqrt
+local concat = table.concat
+local setmetatable = setmetatable
+local pi = math.pi
+local directions = defines.direction
 
---- @class TilePos: TilePosition
-local TilePos = {}
-local tile_mt
+-- ============================================================================
 
---- @param x double
---- @param y double
---- @param metatable? table
---- @return Position
+---@param x number
+---@param y number
+---@param metatable? table
+---@return Position
+---@nodiscard
 local function new(x, y, metatable)
-    return setmetatable({ x = x, y = y }, metatable or position_mt)
+  assert(x and y)
+  return setmetatable({ x = x, y = y }, metatable or position_meta)
 end
 
-
-
-do -- meta
-    meta.concat = require('__stdlib2__.misc').concat
-
-    meta.eq = function(this, other)
-        return this.x == other.x and this.y == other.y
-    end
+---@param x number
+---@param y number
+---@param metatable? table
+---@return Position
+---@nodiscard
+local function new_safe(x, y, metatable)
+  return setmetatable({ x = x, y = y }, metatable or position_meta)
 end
 
-do -- generic
-
+---@param pos AnyPosOrVec|number
+---@return number, number
+---@nodiscard
+local function as_tuple_any(pos)
+  return pos.x or pos[1] or pos, pos.y or pos[2] or pos
 end
 
-do -- Position
-
-    local function tile_center(pos)
-        local x, y
-        local ceil_x = ceil(pos.x)
-        local ceil_y = ceil(pos.y)
-        x = pos.x >= 0 and floor(pos.x) + 0.5 or (ceil_x == pos.x and ceil_x + 0.5 or ceil_x - 0.5)
-        y = pos.y >= 0 and floor(pos.y) + 0.5 or (ceil_y == pos.y and ceil_y + 0.5 or ceil_y - 0.5)
-        return x, y
-    end
-
-    --- @return ChunkPos
-    function Position:to_chunk_position()
-        return new(floor(self.x / 32), floor(self.y / 32), chunk_mt)
-    end
-
-    --- @return ChunkPos
-    function Position:as_chunk_position()
-        return setmetatable(self, chunk_mt)
-    end
-
-    --- @return PixelPos
-    function Position:to_pixel_position()
-        return new(self.x / 32, self.y / 32, pixel_mt)
-    end
-
-    --- @return PixelPos
-    function Position:as_pixel_position()
-        return setmetatable(self, pixel_mt)
-    end
-
-    --- @return TilePos
-    function Position:to_tile_position()
-        return new(floor(self.x), floor(self.y), tile_mt)
-    end
-
-    --- @return TilePos
-    function Position:as_tile_position()
-        return setmetatable(self, tile_mt)
-    end
-
-    function Position:expand()
-    end
-
-    function Position:to_area()
-    end
-
-    function Position:to_chunk_area()
-    end
-
-    function Position:to_tile_area()
-    end
-
-    --- @param x double
-    --- @param y double
-    function Position:update(x, y)
-        self.x, self.y = x, y
-        return self
-    end
-
-    function Position:copy()
-        return setmetatable({ x = self.x, y = self.y }, getmetatable(self))
-    end
-
-    function Position:normalize()
-        return new((self.x * 0.00390625) / 0.00390625, (self.y * 0.00390625) / 0.00390625, getmetatable(self))
-    end
-
-    function Position:normalized()
-        return self:update((self.x * 0.00390625) / 0.00390625, (self.y * 0.00390625) / 0.00390625)
-    end
-
-    function Position:floor()
-        return new(floor(self.x), floor(self.y))
-    end
-
-    function Position:floored()
-        return self:update(floor(self.x), floor(self.y))
-    end
-
-    function Position:ceil()
-        return new(ceil(self.x), ceil(self.y))
-    end
-
-    function Position:ceiled()
-        return self:update(ceil(self.x), ceil(self.y))
-    end
-
-    function Position:add(other)
-        other = as_position(other)
-        return new(self.x + other.x, self.y + other.y)
-    end
-
-    function Position:added(other)
-        other = as_position(other)
-        return self:update(self.x + other.x, self.y + other.y)
-    end
-
-    function Position:subtract(other)
-        other = as_position(other)
-        return new(self.x - other.x, self.y - other.y)
-    end
-
-    function Position:subtracted(other)
-        other = as_position(other)
-        return self:update(self.x - other.x, self.y - other.y)
-    end
-
-    function Position:center()
-        return new(tile_center(self))
-    end
-
-    function Position:centered()
-        return self:update(tile_center(self))
-    end
-
-    function Position:round()
-    end
-
-    function Position:rounded()
-    end
-
-    function Position:lerp()
-    end
-
-    function Position:lerped()
-    end
-
-    function Position:translate()
-    end
-
-    function Position:translated()
-    end
-
-    function Position:random()
-    end
-
-    function Position:randomed()
-    end
-
-    function Position:offset_from()
-    end
-
-    function Position:incrementer()
-    end
-
-    local dirs = defines.direction
-    --- @return defines.direction
-    function Position:direction_to(other)
-        local dx = self.x - other.x
-        local dy = self.y - other.y
-        if dx == 0 then return dy > 0 and dirs.north or dirs.south --[[@as defines.direction]] end
-        if dy == 0 then return dx > 0 and dirs.west or dirs.east --[[@as defines.direction]] end
-
-        local adx, ady = abs(dx), abs(dy)
-        if adx > ady then return dx > 0 and dirs.north or dirs.south --[[@as defines.direction]] end
-        return dy > 0 and dirs.west or dirs.east --[[@as defines.direction]]
-    end
-
-    --- @return RealOrientation
-    function Position:orientation_to(other)
-        return (1 - (self:atan2(other) / pi)) / 2
-    end
-
-    function Position:distance(other)
-        local axbx = self.x - other.x
-        local ayby = self.y - other.y
-        return (axbx * axbx + ayby * ayby) ^ 0.5
-    end
-
-    --- @return Vector
-    function Position:pack()
-        return { self.x, self.y }
-    end
-
-    function Position:inside(area)
-        local lt = area.left_top
-        local rb = area.right_bottom
-        return self.x >= lt.x and self.y >= lt.y and self.x <= rb.x and self.y <= rb.y
-    end
-
-    function Position:equals(other)
-        other = as_position(other)
-        return self.x == other.x and self.y == other.y
-    end
-
-    function Position:atan2(other)
-        return atan2(other.x - self.x, other.y - self.y)
-    end
-
-    function Position:angle(other)
-        local dist = self:distance(other)
-        return dist ~= 0 and deg(acos((self.x * other.x + self.y * other.y) / dist)) or 0
-    end
-
-    function Position:tostring()
-        return '{x = ' .. self.x .. ', ' .. 'y = ' .. self.y .. '}'
-    end
-
-    position_mt = { __index = Position, __tostring = Position.tostring, __concat = meta.concat, __eq = meta.eq }
+---@param pos AnyPosOrVec
+---@return number, number
+---@nodiscard
+local function as_tuple(pos)
+  return pos.x or pos[1], pos.y or pos[2]
 end
 
-do -- Tile
+-- =============================================================================
+do -- Position Constructors
 
-    --- @return Position
-    function TilePos:to_position()
-        return new(self.x --[[@as  double]], self.y --[[@as double]], position_mt)
-    end
+  ---@param x? number
+  ---@param y? number
+  function Position:update(x, y)
+    self.x, self.y = x or self.x, y or self.y
+    return self
+  end
 
-    --- @return Position
-    function TilePos:as_position()
-        return setmetatable(self, position_mt) --[[@as Position]]
-    end
+  ---@param metatable? Position
+  ---@return Position
+  ---@nodiscard
+  function Position:copy(metatable)
+    return setmetatable({ x = self.x, y = self.y }, metatable or getmetatable(self))
+  end
 
-    TilePos.to_chunk_position = Position.to_chunk_position ----@type fun(self: TilePos): ChunkPos
-    TilePos.as_chunk_position = Position.as_chunk_position ----@type fun(self: TilePos): ChunkPos
-    TilePos.to_pixel_position = Position.to_pixel_position ----@type fun(self: TilePos): PixelPos
-    TilePos.as_pixel_position = Position.as_pixel_position ----@type fun(self: TilePos): PixelPos
-
-    TilePos.update = Position.update ----@type fun(self: TilePos, x: double, y: double): TilePos
-    TilePos.normalized = Position.normalized ---@type fun(self: TilePos): TilePos
-
-    tile_mt = { __index = TilePos, __tostring = Position.tostring, __concat = meta.concat, __eq = meta.eq }
 end
+-------------------------------------------------------------------------------
+do -- Methods
 
-do -- Metamethod stuff
-    pixel_mt = { __index = PixelPos, __tostring = Position.tostring, __concat = meta.concat, __eq = meta.eq }
-    chunk_mt = { __index = ChunkPos, __tostring = Position.tostring, __concat = meta.concat, __eq = meta.eq }
+  function Position:normalize()
+    self.x, self.y = (self.x * 0.00390625) / 0.00390625, (self.y * 0.00390625) / 0.00390625
+    return self
+  end
+
+  function Position:floor(divisor)
+    self.x, self.y = floor(self.x, divisor), floor(self.y, divisor)
+    return self
+  end
+
+  function Position:ceil(divisor)
+    self.x, self.y = ceil(self.x, divisor), ceil(self.y, divisor)
+    return self
+  end
+
+  function Position:round(divisor)
+    self.x, self.y = round(self.x, divisor), round(self.y, divisor)
+    return self
+  end
+
+  function Position:abs()
+    self.x, self.y = abs(self.x), abs(self.y)
+    return self
+  end
+
+  ---@param other AnyPosOrVec
+  function Position:add(other)
+    local other_x, other_y = as_tuple(other)
+    self.x, self.y = self.x + other_x, self.y + other_y
+  end
+
+  ---@param other AnyPosOrVec
+  function Position:subtract(other)
+    local other_x, other_y = as_tuple(other)
+    self.x, self.y = self.x - other_x, self.y - other_y
+  end
+
+  ---@param other AnyPosOrVec
+  function Position:multiply(other)
+    local other_x, other_y = as_tuple(other)
+    self.x, self.y = self.x * other_x, self.y * other_y
+    return self
+  end
+
+  ---@param other AnyPosOrVec
+  function Position:divide(other)
+    local other_x, other_y = as_tuple(other)
+    self.x, self.y = self.x / other_x, self.y / other_y
+    return self
+  end
+
+  ---@param other AnyPosOrVec
+  function Position:modulo(other)
+    local other_x, other_y = as_tuple(other)
+    self.x, self.y = self.x % other_x, self.y % other_y
+    return self
+  end
+
+  function Position:center()
+    local ceil_x = ceil(self.x)
+    local ceil_y = ceil(self.y)
+    self.x = self.x >= 0 and floor(self.x) + 0.5 or (ceil_x == self.x and ceil_x + 0.5 or ceil_x - 0.5)
+    self.y = self.y >= 0 and floor(self.y) + 0.5 or (ceil_y == self.y and ceil_y + 0.5 or ceil_y - 0.5)
+    return self
+  end
+
+  --- Swap the x and y coordinates.
+  function Position:swap()
+    local x, y = self.y, self.x
+    self.x, self.y = x, y
+    return self
+  end
+
+  --- Flip the signs of the position.
+  function Position:flip()
+    self.x, self.y = -self.x, -self.y
+    return self
+  end
+
+  function Position:flipx()
+    self.x = -self.x
+    return self
+  end
+
+  function Position:flipy()
+    self.y = -self.y
+    return self
+  end
+
+  ---Trim the position to a length.
+  ---@param max_length number
+  function Position:trim(max_length)
+    local s = max_length * max_length / (self.x * self.x + self.y * self.y)
+    s = (s > 1 and 1) or sqrt(s)
+    self.x, self.y = self.x * s, self.y * s
+    return self
+  end
+
+  ---@param other AnyPosOrVec
+  ---@param alpha float
+  function Position:lerp(other, alpha)
+    local other_x, other_y = as_tuple(other)
+    self.x = self.x + (other_x - self.x) * alpha
+    self.y = self.y + (other_y - self.y) * alpha
+    return self
+  end
+
+  ---@param dir defines.direction
+  ---@param distance number
+  function Position:translate(dir, distance)
+    return Position.add(self, Direction.to_vector(dir, distance))
+  end
+
+  function Position:as_chunk_position()
+    self.x, self.y = floor(self.x / 32), floor(self.y / 32)
+    return self
+  end
+
+  function Position:as_pixel_position()
+    self.x, self.y = self.x * 32, self.y * 32
+    return self
+  end
+
+  Position.as_tile_position = Position.floor
+
 end
+-------------------------------------------------------------------------------
+do -- Position Conversion
 
-do -- Constructor stuff
-    --- @return Position
-    function PositionClass.load(pos)
-        return setmetatable(pos, position_mt)
-    end
+  function Position:to_chunk_position()
+    return Position.as_chunk_position(Position.copy(self))
+  end
 
-    --- @param x double
-    --- @param y double
-    --- @return Position
-    function PositionClass.from_xy(x, y)
-        assert(x and y, 'Invalid x or y position')
-        return setmetatable({ x = x, y = y }, position_mt)
-    end
+  function Position:to_tile_position()
+    return Position.as_tile_position(Position.copy(self))
+  end
 
-    --- @param chunk_pos ChunkPos|ChunkPosition
-    --- @return ChunkPos
-    function PositionClass.from_chunk(chunk_pos)
-        local x, y = (floor(chunk_pos.x or chunk_pos[1]) * 32), (floor(chunk_pos.y or chunk_pos[2]) * 32)
-        assert(x and y, 'Invalid chunk position')
-        return setmetatable({ x = x, y = y }, position_mt)
-    end
+  function Position:to_pixel_position()
+    return Position.as_pixel_position(Position.copy(self))
+  end
 
-    --- @param pixel_pos PixelPos
-    --- @return PixelPos
-    function PositionClass.from_pixel(pixel_pos)
-        local x, y = (pixel_pos.x or pixel_pos[1]) / 32, (pixel_pos.y or pixel_pos[2]) / 32
-        assert(x and y, 'Invalid pixel position')
-        return setmetatable({ x = x, y = y }, position_mt)
-    end
-
-    --- @param pos Position|MapPosition|Vector
-    --- @return Position
-    function PositionClass.from_position(pos)
-        local x, y = pos.x or pos[1], pos.y or pos[2]
-        assert(x and y, 'Invalid position')
-        return setmetatable({ x = x, y = y }, position_mt)
-    end
-    PositionClass.from_tile = PositionClass.from_position
-    PositionClass.from_vector = PositionClass.from_position
-    PositionClass.unpack = PositionClass.from_position
-    PositionClass.from_table = PositionClass.from_position
-
-    --- @param pos_string string
-    --- @return Position
-    function PositionClass.from_string(pos_string)
-        return PositionClass.new(load('return ' .. pos_string)())
-    end
-
-    --- @overload fun(): Position
-    --- @overload fun(x:double, y:double): Position
-    --- @overload fun(pos: MapPosition|Vector): Position
-    --- @nodiscard
-    function PositionClass.new(x, y)
-        if not x then return setmetatable({ x = 0, y = 0 }, position_mt) end
-
-        local typeof = type(x)
-        if typeof == 'table' then
-            local pos = x ---@type MapPosition
-            if pos.x then return PositionClass.from_position(pos) end
-            if pos[1] then return PositionClass.from_vector(pos) end
-            error('Invalid position, expected {x = numx, y = numy} or {numx, numy}')
-        end
-        ---@cast x double
-        if typeof == 'number' then return PositionClass.from_xy(x, y) end
-        if typeof == 'string' then return PositionClass.from_string(x) end
-        error('Arguments can not be converted to position')
-    end
-
-    --- Return mutable MapPosition or new MapPosition if not a MapPosition
-    --- @overload fun(_:stdlib.AreaClass, x: double, y:double)
-    local function __call(_, x, y)
-        if not x then return setmetatable({ x = 0, y = 0 }, position_mt) end
-
-        local metatable = getmetatable(x)
-        if metatable then
-            if metatable == position_mt then return x end
-            if metatable == chunk_mt then return PositionClass.from_chunk(x) end
-            if metatable == pixel_mt then return PositionClass.from_pixel(x) end
-        end
-
-        local typeof = type(x)
-        if typeof == 'table' then
-            local pos = x --- @type MapPosition|Vector
-            if pos.x and pos.y then return PositionClass.load(pos) end
-            if pos[1] and pos[2] then return PositionClass.from_vector(pos) end
-            error('Invalid position')
-        end
-        ---@cast x double
-        if typeof == 'number' then return PositionClass.from_xy(x, y) end
-        if typeof == 'string' then return PositionClass.from_string(x) end
-        error('Invalid arguments')
-    end
-    setmetatable(PositionClass, { __call = __call })
-
-    return PositionClass
 end
+-------------------------------------------------------------------------------
+do -- Area Conversions
+
+  function Position:to_area()
+    if not PositionClass.Area then error("'AreaClass' must be required before 'PositionClass'") end
+  end
+
+  function Position:to_area_top_left()
+    if not PositionClass.Area then error("'AreaClass' must be required before 'PositionClass'") end
+  end
+
+  function Position:to_chunk_area()
+    if not PositionClass.Area then error("'AreaClass' must be required before 'PositionClass'") end
+  end
+
+  function Position:to_chunk_tile_area()
+    if not PositionClass.Area then error("'AreaClass' must be required before 'PositionClass'") end
+  end
+
+end
+-------------------------------------------------------------------------------
+do -- Numbers
+
+  ---Gets the squared length of a position
+  function Position:len_squared()
+    return self.x * self.x + self.y * self.y
+  end
+
+  ---Gets the length of a position
+  function Position:len()
+    return (self.x * self.x + self.y * self.y) ^ 0.5
+  end
+
+  ---Return the cross product of two positions.
+  function Position:cross(other)
+    local other_x, other_y = as_tuple(other)
+    return self.x * other_y - self.y * other_x
+  end
+
+  ---Return the dot product of two positions.
+  function Position:dot(other)
+    local other_x, other_y = as_tuple(other)
+    return self.x * other_x + self.y * other_y
+  end
+
+  ---@return defines.direction
+  function Position:direction_to(other)
+    local other_x, other_y = as_tuple(other)
+    local dx = self.x - other_x
+    local dy = self.y - other_y
+    if dx == 0 then return dy > 0 and directions.north or directions.south end
+    if dy == 0 then return dx > 0 and directions.west or directions.east end
+
+    local adx, ady = abs(dx), abs(dy)
+    if adx > ady then return dx > 0 and directions.north or directions.south end
+    return dy > 0 and directions.west or directions.east
+  end
+
+  ---@return RealOrientation
+  ---@param other AnyPosOrVec
+  function Position:orientation_to(other)
+    return (1 - (self:atan2(other) / pi)) / 2
+  end
+
+  ---Calculates the Euclidean distance between two positions.
+  ---@param other AnyPosOrVec
+  function Position:distance(other)
+    local other_x, other_y = as_tuple(other)
+    local ax_bx = self.x - other_x
+    local ay_by = self.y - other_y
+    return (ax_bx * ax_bx + ay_by * ay_by) ^ 0.5
+  end
+
+  ---Calculates the Euclidean distance squared between two positions, useful when sqrt is not needed.
+  ---@param other AnyPosOrVec
+  function Position:distance_squared(other)
+    local other_x, other_y = as_tuple(other)
+    local ax_bx = self.x - other_x
+    local ay_by = self.y - other_y
+    return ax_bx * ax_bx + ay_by * ay_by
+  end
+
+  ---Calculates the manhatten distance between two positions.
+  -- @see https://en.wikipedia.org/wiki/Taxicab_geometry Taxicab geometry (manhatten distance)
+  ---@param other AnyPosOrVec
+  function Position:manhattan_distance(other)
+    local other_x, other_y = as_tuple(other)
+    return abs(other_x - self.x) + abs(other_y - self.y)
+  end
+
+  ---@param other AnyPosOrVec
+  function Position:atan2(other)
+    local other_x, other_y = as_tuple(other)
+    return atan2(other_x - self.x, other_y - self.y)
+  end
+
+  ---@param other AnyPosOrVec
+  function Position:angle(other)
+    local dist = self:distance(other)
+    local other_x, other_y = as_tuple(other)
+    return dist ~= 0 and deg(acos((self.x * other_x + self.y * other_y) / dist)) or 0
+  end
+
+end
+-------------------------------------------------------------------------------
+do -- Booleans
+
+  function Position:inside(area)
+    local lt = area.left_top
+    local rb = area.right_bottom
+    return self.x >= lt.x and self.y >= lt.y and self.x <= rb.x and self.y <= rb.y
+  end
+
+  function Position:is_Zero() return self.x == 0 and self.y == 0 end
+
+  ---@param other AnyPosOrVec
+  function Position:equals(other)
+    local other_x, other_y = as_tuple(other)
+    return self.x == other_x and self.y == other_y
+  end
+
+end
+-------------------------------------------------------------------------------
+do -- Other
+
+  ---@return MapVector
+  function Position:pack()
+    return { self.x, self.y }
+  end
+
+  function Position:unpack()
+    return self.x, self.y
+  end
+
+end
+-------------------------------------------------------------------------------
+do -- Strings
+
+  ---@param surface_name string
+  function Position:to_gps_tag(surface_name)
+    return concat { "[gps=", self.x, ",", self.y, surface_name and ("," .. surface_name) or "", "]" }
+  end
+
+  ---@param precision? float
+  ---@return string
+  function Position:to_string(precision)
+    local f = precision and ("%" .. precision .. "f") or "%s"
+    local tab = { "{ x = ", f, ", y = ", f, " }" }
+    return concat(tab):format(self.x, self.y)
+  end
+
+  ---@param precision? float
+  ---@return string
+  function Position:to_string_vector(precision)
+    local f = precision and ("%" .. precision .. "f") or "%s"
+    local tab = { "{ ", f, ", ", f, " }" }
+    return concat(tab):format(self.x, self.y)
+  end
+
+  ---@param precision? float
+  ---@return string
+  function Position:to_string_tuple(precision)
+    local f = precision and ("%" .. precision .. "f") or "%s"
+    local tab = { f, f }
+    return concat(tab, ", "):format(self.x, self.y)
+  end
+
+end
+-- ============================================================================
+do -- Metatamethods
+
+  ---@param self Position
+  position_meta.__call = function(self) return Position.copy(self) end
+
+  ---@param self Position
+  ---@param key string|number
+  position_meta.__index = function(self, key)
+    if Position[key] then return Position[key]
+    elseif key == 1 then return rawget(self, "x")
+    elseif key == 2 then return rawget(self, "y")
+    else return nil end
+  end
+
+  ---@param self Position
+  ---@param key string|number
+  position_meta.__newindex = function(self, key, value)
+    if key == 1 then rawset(self, "x", value)
+    elseif key == 2 then rawset(self, "y", value)
+    else rawset(self, key, value) end
+  end
+
+  position_meta.__tostring = Position.to_string
+
+  position_meta.__concat = function(self, other) return tostring(self) .. tostring(other) end
+
+  ---@param self Position
+  ---@param other Position
+  position_meta.__eq = function(self, other) return self.x == other.x and self.y == other.y end
+
+  position_meta.__unm = Position.flip
+
+  ---@param self AnyPosOrVec|number
+  ---@param other AnyPosOrVec|number
+  position_meta.__add = function(self, other)
+    local self_x, self_y = as_tuple_any(self)
+    local other_x, other_y = as_tuple_any(other)
+    return new(self_x + other_x, self_y + other_y)
+  end
+
+  ---@param self AnyPosOrVec|number
+  ---@param other AnyPosOrVec|number
+  position_meta.__sub = function(self, other)
+    local self_x, self_y = as_tuple_any(self)
+    local other_x, other_y = as_tuple_any(other)
+    return new(self_x - other_x, self_y - other_y)
+  end
+
+  ---@param self AnyPosOrVec|number
+  ---@param other AnyPosOrVec|number
+  position_meta.__mul = function(self, other)
+    local self_x, self_y = as_tuple_any(self)
+    local other_x, other_y = as_tuple_any(other)
+    return new(self_x * other_x, self_y * other_y)
+  end
+
+  ---@param self AnyPosOrVec|number
+  ---@param other AnyPosOrVec|number
+  position_meta.__div = function(self, other)
+    local self_x, self_y = as_tuple_any(self)
+    local other_x, other_y = as_tuple_any(other)
+    return new(self_x / other_x, self_y / other_y)
+  end
+
+  ---@param self AnyPosOrVec|number
+  ---@param other AnyPosOrVec|number
+  position_meta.__mod = function(self, other)
+    local self_x, self_y = as_tuple_any(self)
+    local other_x, other_y = as_tuple_any(other)
+    return new(self_x % other_x, self_y % other_y)
+  end
+
+end
+-- ============================================================================
+
+do -- PositionClass Constructors
+
+  ---@param position? AnyPosOrVec
+  ---@return Position
+  PositionClass.new = function(position)
+    if not position then return PositionClass.zero() end
+    return new(position.x or position[1], position.y or position[2])
+  end
+
+  ---@param x number
+  ---@param y number
+  ---@return Position
+  PositionClass.construct = function(x, y)
+    return new(x, y)
+  end
+
+  ---@param x number
+  ---@param y number
+  ---@return Position
+  PositionClass.construct_safe = function(x, y)
+    return new_safe(x, y)
+  end
+
+  ---@param position Position
+  ---@return Position
+  PositionClass.copy = function(position)
+    return new_safe(position.x, position.y)
+  end
+
+  ---@return Position
+  PositionClass.zero = function()
+    return new_safe(0, 0)
+  end
+
+  PositionClass.as_tuple = as_tuple
+  PositionClass.as_tuple_any = as_tuple_any
+
+  ---@param position AnyPosition
+  ---@return Position
+  PositionClass.load = function(position)
+    return setmetatable(position--[[@as Position]] , position_meta)
+  end
+
+  ---@param self PositionClass
+  ---@param position AnyPosition
+  local __call = function(self, position)
+    return self.load(position)
+  end
+
+  setmetatable(PositionClass, { __call = __call })
+
+end
+-- ============================================================================
+
+return PositionClass
+
+---@class Position
+---@operator call(Position):Position
+---@operator add (number|AnyPosOrVec):Position
+---@operator unm (Position):Position
+---@operator mul (number|AnyPosOrVec):Position
+---@operator sub (number|AnyPosOrVec):Position
+---@operator div (number|AnyPosOrVec):Position
+---@operator mod (Position):Position
+
+---@alias AnyPosition Position|MapPosition|ChunkPosition|TilePosition
+---@alias AnyPosOrVec AnyPosition|MapVector
+
+---@class MapVector
+---@field [1] number
+---@field [2] number

@@ -1,247 +1,576 @@
---- @alias PackedBoundingBox {[1]: Vector, [2]: Vector, [3]:float?}
---- @class stdlib.AreaClass
---- @overload fun(): stdlib.Area
---- @overload fun(pos: any): stdlib.Area
---- @overload fun(ltx: double, lty: double, rbx: double, rby: double, ori?: float): stdlib.Area
+---@class AreaClass
+---@operator call(AnyArea): Area
 local AreaClass = {}
 
-local Position = require('__stdlib2__.position')
+---@class Area: BoundingBox
+local Area = {}
+local area_meta = {}
+
+local Position = require("position")
+Position.Area = AreaClass
+local as_pos_tuple_any = Position.as_tuple_any ---@diagnostic disable-line: unused-local
+local as_pos_tuple = Position.as_tuple
+
 local setmetatable = setmetatable
 local abs = math.abs
+local concat = table.concat
 
---- @class stdlib.Area: BoundingBox
---- @field left_top Position
---- @field right_bottom Position
-local Area = {}
-local area_mt
-
---- @param ltx double
---- @param lty double
---- @param rbx double
---- @param rby double
---- @param ori? double
---- @param metatable? table
---- @return stdlib.Area
+-- ============================================================================
+---@param ltx number
+---@param lty number
+---@param rbx number
+---@param rby number
+---@param ori? float
+---@param metatable? table
+---@return Area
+---@nodiscard
 local function new(ltx, lty, rbx, rby, ori, metatable)
-    local left_top = Position.new(ltx, lty)
-    local right_bottom = Position.new(rbx, rby)
-    return setmetatable({ left_top = left_top, right_bottom = right_bottom, orientation = ori }, metatable or area_mt)
+  local lt, rb = Position.construct(ltx, lty), Position.construct(rbx, rby)
+  local area = setmetatable({ left_top = lt, right_bottom = rb, orientation = ori }, metatable or area_meta)
+  assert(Area.is_normal(area), "Area is not normalized.")
+  return area
 end
 
-local function as_area(area)
-    if getmetatable(area) == area_mt then return area end
-    local typeof = type(area)
-    if typeof == table then
-        local lt, rb = area.left_top, area.right_bottom
-        if lt and rb and lt.x and lt.y and rb.x and rb.y then return area end
-        lt, rb = area[1], area[2]
-        if lt and rb then
-            if lt.x and lt.y and rb.x and rb.y then return { left_top = lt, right_bottom = rb, orientation = area[3] } end
-            if lt[1] and lt[2] and rb[1] and rb[2] then
-                return { left_top = { x = lt[1], y = lt[2] }, right_bottom = { x = rb[1], y = rb[2] }, orientation = area[3] }
-            end
-        end
-        error('Not convertible to area')
-    elseif typeof == 'number' then
-        return { left_top = { x = area, y = area }, right_bottom = { x = area, y = area } }
-    else
-        error('Not convertibe to area')
-    end
+---@param ltx number
+---@param lty number
+---@param rbx number
+---@param rby number
+---@param ori? float
+---@param metatable? table
+---@return Area
+---@nodiscard
+local function new_safe(ltx, lty, rbx, rby, ori, metatable)
+  local lt, rb = Position.load { x = ltx, y = lty }, Position.load { x = rbx, y = rby }
+  local area = setmetatable({ left_top = lt, right_bottom = rb, orientation = ori }, metatable or area_meta)
+  return area
 end
 
-do --[[Conversions]]
-    function Area:to_chunk_area()
-    end
-    function Area:as_chunk_area()
-    end
+---@param self AnyBox
+---@return number, number, number, number
+---@nodiscard
+local function as_tuple(self)
+  local lt, rb = self.left_top or self[1], self.right_bottom or self[2]
+  return lt.x or lt[1], lt.y or lt[2], rb.x or rb[1], rb.y or rb[2]
 end
 
-do -- Areas
-    --- @return stdlib.Area
-    function Area:update()
-    end
-    function Area:copy()
-        return AreaClass.from_area(self)
-    end
-    function Area:normalize()
-    end
-    function Area:round()
-    end
-    function Area:ceil()
-    end
-    function Area:floor()
-    end
-    function Area:shrink()
-    end
-    function Area:expand()
-    end
-    function Area:adjust()
-    end
-    function Area:offset()
-    end
-    function Area:translate()
-    end
-    function Area:rotate()
-    end
-    function Area:to_surface_size()
-    end
+---@param self AnyBox|number
+---@diagnostic disable-next-line: unused-local
+local function asTupleAny(self)
+  local typeof = type(self)
+  if typeof == "number" then return self, self, self, self
+  elseif typeof == "table" then
+    local lt, rb = self.left_top or self[1], self.right_bottom or self[2]
+    return lt.x or lt[1], lt.y or lt[2], rb.x or rb[1], rb.y or rb[2]
+  else error("Invalid type for area: " .. typeof) end
 end
 
-do -- Positions
-    function Area:center()
-        local dx = self.right_bottom.x - self.left_top.x
-        local dy = self.right_bottom.y - self.left_top.y
-        local x, y = self.left_top.x + (dx / 2), self.left_top.y + (dy / 2)
-        return Position.from_xy(x, y)
-    end
+-- ============================================================================
+do -- Area Constructors
 
-    function Area:right_top()
-        return Position.from_xy(self.right_bottom.x, self.left_top.y)
-    end
+  ---@param ltx? number
+  ---@param lty? number
+  ---@param rbx? number
+  ---@param rby? number
+  ---@param ori? float
+  ---@return Area
+  function Area:update(ltx, lty, rbx, rby, ori)
+    self.left_top:update(ltx, lty)
+    self.right_bottom:update(rbx, rby)
+    self.orientation = ori and ori or self.orientation
+    return self
+  end
 
-    function Area:left_bottom()
-        return Position.from_xy(self.left_top, self.right_bottom.y)
+  ---@return Area
+  ---@nodiscard
+  function Area:copy()
+    local lt, rb = self.left_top:copy(), self.right_bottom:copy()
+    return setmetatable({ left_top = lt, right_bottom = rb, orientation = rawget(self, "ori") }, getmetatable(self))
+  end
+
+end
+-------------------------------------------------------------------------------
+do -- Methods
+
+  function Area:normalize()
+    return self
+  end
+
+  function Area:round(divisor)
+    self.left_top:round(divisor)
+    self.right_bottom:round(divisor)
+    return self
+  end
+
+  function Area:floor(divisor)
+    self.left_top:floor(divisor)
+    self.right_bottom:floor(divisor)
+    return self
+  end
+
+  function Area:ceil(divisor)
+    self.left_top:ceil(divisor)
+    self.right_bottom:ceil(divisor)
+    return self
+  end
+
+  function Area:adjust()
+    return self
+  end
+
+  function Area:rotate()
+    return self
+  end
+
+  function Area:offset(position)
+    self.left_top:add(position)
+    self.right_bottom:add(position)
+    return self
+  end
+
+  function Area:translate(direction, distance)
+    self.left_top:translate(direction, distance)
+    self.right_bottom:translate(direction, distance)
+    return self
+  end
+
+  function Area:add(_other_)
+    return self
+  end
+
+  function Area:subtract(_other_)
+    return self
+  end
+
+  function Area:multiply(_other_)
+    return self
+  end
+
+  function Area:divide(_other_)
+    return self
+  end
+
+  function Area:modulo(_other_)
+    return self
+  end
+
+end
+-------------------------------------------------------------------------------
+do -- Area Conversions
+
+  ---@return Area
+  ---@nodiscard
+  function Area:to_chunk_area()
+  end
+
+  ---@return Area
+  ---@nodiscard
+  function Area:to_chunk_tile_area()
+  end
+
+  ---@return Area
+  ---@nodiscard
+  function Area:to_tile_area()
+  end
+
+  ---@return VectorBox
+  ---@nodiscard
+  function Area:to_vector_box()
+    local lt, rb = self.left_top, self.right_bottom
+    return { { lt.x, lt.y }, { rb.x, rb.y } }
+  end
+
+end
+-------------------------------------------------------------------------------
+do -- Position Conversions
+
+  ---@return Position
+  ---@nodiscard
+  function Area:center()
+    local width, height = Area.dimensions(self)
+    return Position.construct_safe(width / 2, height / 2)
+  end
+
+  ---@todo Cache
+  ---@return Position
+  ---@nodiscard
+  function Area:get_left_bottom()
+    local lt = self.left_top
+    return Position.construct_safe(lt.x, lt.y + Area.get_height(self))
+  end
+
+  ---@todo Cache
+  ---@return Position
+  ---@nodiscard
+  function Area:get_right_top()
+    local lt = self.left_top
+    return Position.construct_safe(lt.x + Area.get_width(self), lt.y)
+  end
+
+end
+-------------------------------------------------------------------------------
+do -- Number
+
+  ---@return number
+  ---@nodiscard
+  function Area:get_width()
+    return abs(self.left_top.x - self.right_bottom.x)
+  end
+
+  ---@return number
+  ---@nodiscard
+  function Area:get_height()
+    return abs(self.left_top.y - self.right_bottom.y)
+  end
+
+  ---@return number
+  ---@nodiscard
+  function Area:size()
+    return Area.get_width(self) * Area.get_height(self)
+  end
+
+  ---@return number, number
+  ---@nodiscard
+  function Area:dimensions()
+    return Area.get_width(self), Area.get_height(self)
+  end
+
+  ---@return number
+  ---@nodiscard
+  function Area:perimeter()
+    return 2 * Area.get_width(self) + 2 * Area.get_height(self)
+  end
+
+end
+-------------------------------------------------------------------------------
+do -- Boolean
+
+  ---@return boolean
+  ---@nodiscard
+  function Area:contains(position)
+  end
+
+  ---@return boolean
+  ---@nodiscard
+  function Area:inside(other)
+  end
+
+  ---@return boolean
+  ---@nodiscard
+  function Area:intersects(other)
+  end
+
+  ---@return boolean
+  ---@nodiscard
+  function Area:equals(other)
+    local lt, rb = self.left_top, self.right_bottom
+    local other_ltx, other_lty, other_rbx, other_rby = as_tuple(other)
+    return lt.x == other_ltx and lt.y == other_lty and rb.x == other_rbx and rb.y == other_rby
+  end
+
+  ---@return boolean
+  ---@nodiscard
+  function Area:is_zero()
+    return Area.size(self) == 0
+  end
+
+  ---@return boolean
+  ---@nodiscard
+  function Area:is_square()
+    return Area.get_width(self) == Area.get_height(self)
+  end
+
+  ---@return boolean
+  ---@nodiscard
+  function Area:is_chunk_area()
+    local lt, rb = self.left_top, self.right_bottom
+    return lt.x % 32 == 0 and lt.y % 32 == 0 and rb.x == lt.x + 32 and rb.y == lt.y + 32
+  end
+
+  ---@return boolean
+  ---@nodiscard
+  function Area:is_chunk_tile_area()
+    local lt, rb = self.left_top, self.right_bottom
+    return lt.x % 32 == 0 and lt.y % 32 == 0 and rb.x == lt.x + 31 and rb.y == lt.y + 31
+  end
+
+  ---@return boolean
+  ---@nodiscard
+  function Area:is_tile_area()
+    local lt, rb = self.left_top, self.right_bottom
+    return lt.x % 1 == 0 and lt.y % 1 == 0 and rb.x == lt.x + 1 and rb.y == lt.y + 1
+  end
+
+  ---@return boolean
+  ---@nodiscard
+  function Area:is_normal()
+    local lt, rb = self.left_top, self.right_bottom
+    return rb.x >= lt.x and rb.y >= lt.y
+  end
+
+end
+-------------------------------------------------------------------------------
+do -- String
+
+  --- { left_top = { y = 0, y = 0 }, right_bottom = { x = 0, y = 0 } }
+  ---
+  --- { left_top = { y = 0, y = 0 }, right_bottom = { x = 0, y = 0 }, orientation = 0 }
+  ---@param precision? float
+  ---@return string
+  ---@nodiscard
+  function Area:to_string(precision)
+    local lt, rb = self.left_top:to_string(precision), self.right_bottom:to_string(precision)
+    local f_str = precision and ("%" .. precision .. "f") or "%s"
+    local o_str = self.orientation and (", orientation = " .. f_str) or ""
+    local tab = { "{ left_top = ", lt, ", right_bottom = ", rb, o_str, " }" }
+    return concat(tab):format(self.orientation)
+  end
+
+  --- { { 0, 0 }, { 0, 0 } }
+  ---
+  --- { { 0, 0 }, { 0, 0 }, 0 }
+  ---@param precision? float
+  ---@return string
+  ---@nodiscard
+  function Area:to_string_vector_box(precision)
+    precision = precision or .3
+    local lt, rb = self.left_top:to_string_vector(precision), self.right_bottom:to_string_vector(precision)
+    local f_str = precision and ("%" .. precision .. "f") or "%s"
+    local o_str = self.orientation and (", " .. f_str) or ""
+    local tab = { "{ ", lt, ", ", rb, o_str, " }" }
+    return concat(tab):format(self.orientation)
+  end
+
+  --- { 0, 0 }, { 0, 0 }
+  ---
+  --- { 0, 0 }, { 0, 0 }, 0
+  ---@param precision? float
+  ---@return string
+  ---@nodiscard
+  function Area:to_string_vector_tuple(precision)
+    precision = precision or .3
+    local lt, rb = self.left_top:to_string_vector(precision), self.right_bottom:to_string_vector(precision)
+    local f_str = precision and ("%" .. precision .. "f") or "%s"
+    local o_str = self.orientation and (", " .. f_str) or ""
+    local tab = { lt, ", ", rb, o_str }
+    return concat(tab):format(self.orientation)
+  end
+
+  --- 0, 0, 0, 0
+  ---
+  --- 0, 0, 0, 0, 0
+  ---@param precision? float
+  ---@return string
+  ---@nodiscard
+  function Area:to_string_tuple(precision)
+    precision = precision or .3
+    local lt, rb = self.left_top:to_string_tuple(precision), self.right_bottom:to_string_tuple(precision)
+    local f_str = precision and ("%" .. precision .. "f") or "%s"
+    local o_str = self.orientation and (", " .. f_str) or ""
+    local tab = { lt, ", ", rb, o_str }
+    return concat(tab):format(self.orientation)
+  end
+
+end
+-------------------------------------------------------------------------------
+do -- Other
+
+  ---@return AreaArray
+  ---@nodiscard
+  function Area:pack()
+    local lt, rb = self.left_top, self.right_bottom
+    return { lt.x, lt.y, rb.x, rb.y }
+  end
+
+  ---@return number, number, number, number
+  ---@nodiscard
+  function Area:unpack()
+    local lt, rb = self.left_top, self.right_bottom
+    return lt.x, lt.y, rb.x, rb.y
+  end
+
+end
+-- ============================================================================
+do -- Metatable
+
+  ---@param self Area
+  area_meta.__call = function(self) return Area.copy(self) end
+  ---@param self Area
+  area_meta.__index = function(self, key)
+    if Area[key] then return Area[key]
+    elseif key == 1 then return rawget(self, "left_top")
+    elseif key == 2 then return rawget(self, "right_bottom")
+    elseif key == 3 then return rawget(self, "orientation")
+    elseif key == "right_top" then return Area.get_right_top(self)
+    elseif key == "left_bottom" then return Area.get_left_bottom(self)
+    elseif key == "width" then return Area.get_width(self)
+    elseif key == "height" then return Area.get_height(self)
+    else return nil end
+  end
+  ---@param self Area
+  area_meta.__newindex = function(self, key, value)
+    if key == 1 then rawset(self, "left_top", Position.new(value))
+    elseif key == 2 then rawset(self, "right_bottom", Position.new(value))
+    elseif key == 3 then rawset(self, "orientation", value)
+    else rawset(self, key, value) end
+  end
+  area_meta.__tostring = Area.to_string
+  area_meta.__concat = function(a, b) return tostring(a) .. tostring(b) end
+  area_meta.__eq = function(a, b) return a.left_top == b.left_top and a.right_bottom == b.right_bottom and a.orientation == b.orientation end
+
+end
+-- ============================================================================
+do -- AreaClass Constructors
+
+  ---@param area AnyArea
+  function AreaClass.new(area)
+    if not area then return AreaClass.zero() end
+    local lt = Position.new(area.left_top or area[1])
+    local rb = Position.new(area.right_bottom or area[2])
+    local o = area.orientation or area[3]
+    return setmetatable({ left_top = lt, right_bottom = rb, orientation = o }, area_meta)
+  end
+
+  ---@param ltx number
+  ---@param lty number
+  ---@param rbx number
+  ---@param rby number
+  ---@param ori? float
+  ---@nodiscard
+  function AreaClass.construct(ltx, lty, rbx, rby, ori)
+    return new(ltx, lty, rbx, rby, ori)
+  end
+
+  ---@param arr AreaArray
+  ---@return Area
+  ---@nodiscard
+  function AreaClass.from_array(arr)
+    return new(arr[1], arr[2], arr[3], arr[4], arr[5])
+  end
+
+  ---@param vecbox VectorBox
+  ---@return Area
+  ---@nodiscard
+  function AreaClass.from_vector_box(vecbox)
+    return new(vecbox[1][1], vecbox[1][2], vecbox[2][1], vecbox[2][2], vecbox[3])
+  end
+
+  ---@param left_top AnyPosOrVec
+  ---@param right_bottom AnyPosOrVec
+  ---@return Area
+  ---@nodiscard
+  function AreaClass.from_positions(left_top, right_bottom)
+    local ltx, lty = as_pos_tuple(left_top)
+    local rbx, rby = as_pos_tuple(right_bottom)
+    return new(ltx, lty, rbx, rby)
+  end
+
+  ---@param position AnyPosOrVec
+  ---@param width? number
+  ---@param height? number
+  ---@return Area
+  ---@overload fun(position: AnyPosOrVec, lt_vector: AnyPosOrVec, rb_vector?: AnyPosOrVec): Area
+  ---@nodiscard
+  function AreaClass.from_position(position, width, height)
+    local posx, posy = as_pos_tuple(position)
+    if type(width) == "table" then
+      width, height = as_pos_tuple(width)
+      if type(height) == "table" then
+        -- Expand based on two vectors
+        local width_rb, height_rb = as_pos_tuple(height)
+        return new(posx + width, posy + height, posx + width_rb, posy + height_rb)
+      end
+      -- Expand based on one vector
+      return new(posx - width, posy - height, posx + width, posy + height)
     end
+    -- Expand based on half width/height
+    local wr, hr = (width or 0) / 2, (height or width or 0) / 2
+    return new(posx - wr, posy - hr, posx + wr, posy + wr)
+  end
+
+  ---@param left_top AnyPosOrVec
+  ---@param width? number
+  ---@param height? number
+  ---@return Area
+  ---@overload fun(left_top: AnyPosOrVec, vector: AnyPosOrVec): Area
+  ---@nodiscard
+  function AreaClass.from_left_top(left_top, width, height)
+    local posx, posy = as_pos_tuple(left_top)
+    if type(width) == "table" then width, height = as_pos_tuple(width)
+    else width, height = width or 0, height or width or 0 end
+
+    local ltx, lty, rbx, rby = posx, posy, posx, posy
+    if width < 0 then ltx = ltx + width else rbx = rbx + width end
+    if height < 0 then lty = lty + height else rby = rby + height end
+    return new(ltx, lty, rbx, rby)
+  end
+
+  ---@return Area
+  ---@nodiscard
+  function AreaClass.from_string()
+    error("Not implemented")
+  end
+
+  ---@return Area
+  ---@nodiscard
+  function AreaClass.zero()
+    return new_safe(0, 0, 0, 0)
+  end
+
+  ---@return Area
+  ---@nodiscard
+  function AreaClass.one()
+    return new_safe(0, 0, 1, 1)
+  end
+
+  ---@return Area
+  ---@nodiscard
+  function AreaClass.two()
+    return new_safe(-1, -1, 1, 1)
+  end
+
+  ---@param area AnyArea
+  ---@return Area
+  function AreaClass.load(area)
+    Position.load(area.left_top)
+    Position.load(area.right_bottom)
+    return setmetatable(area--[[@as Area]] , area_meta)
+  end
+
+  ---@param area AnyArea
+  ---@return Area
+  local function __call(self, area)
+    return self.load(area)
+  end
+
+  setmetatable(AreaClass, { __call = __call })
+
 end
 
-do -- numbers
+-- ============================================================================
 
-    function Area:width()
-        return abs(self.left_top.x - self.right_bottom.x)
-    end
+return AreaClass
 
-    function Area:height()
-        return abs(self.left_top.y - self.right_bottom.y)
-    end
+---@class Area
+---@field left_top Position
+---@field right_bottom Position
+---@field right_top Position
+---@field left_bottom Position
+---@field orientation RealOrientation
+---@field width number
+---@field height number
 
-    --- @return number, number
-    function Area:dimensions()
-        return self:width(), self:height()
-    end
+---@alias AnyArea Area|BoundingBox
+---@alias AnyBox AnyArea|VectorBox
+---@alias FuncTable {[string]: function}
 
-    function Area:perimeter()
-        return (self:width() * 2) + (self:height() * 2)
-    end
+---@class VectorBox
+---@field [1] MapVector
+---@field [2] MapVector
+---@field [3] float?
 
-    function Area:size()
-        return self:width() * self:height()
-    end
-end
-
-do -- Booleans
-
-    function Area:inside()
-    end
-
-    function Area:contains()
-    end
-
-    function Area:empty()
-        return self:size() == 0
-    end
-end
-
-do -- other
-
-    function Area:tostring()
-        local lt, rb = tostring(self.left_top), tostring(self.right_bottom)
-        local ori = self.orientation and (', orientation = ' .. self.orientation) or ''
-        return '{left_top = ' .. lt .. ', right_bottom = ' .. rb .. ori .. '}'
-    end
-
-    --- @return PackedBoundingBox
-    --- @nodiscard
-    function Area:pack()
-        return { self.left_top:pack(), self.right_bottom:pack(), self.orientation }
-    end
-end
-
-do -- metatable stuff
-    area_mt = { __index = Area, __tostring = Area.tostring, __concat = require('__stdlib2__.misc').concat }
-end
-
-do -- Constructor stuff
-    --- @return stdlib.Area
-    function AreaClass.load(area)
-        Position.load(area.left_top)
-        Position.load(area.right_bottom)
-        return setmetatable(area, area_mt)
-    end
-
-    -- function AreaClass.from_chunk()
-    -- end
-    -- function AreaClass.from_pixel()
-    -- end
-
-    --- @param area stdlib.Area|BoundingBox
-    --- @return stdlib.Area
-    function AreaClass.from_area(area)
-        local left_top = Position.from_position(area.left_top)
-        local right_bottom = Position.from_position(area.right_bottom)
-        return setmetatable({ left_top = left_top, right_bottom = right_bottom, orientation = area.orientation }, area_mt)
-    end
-
-    --- @param array PackedBoundingBox
-    --- @return stdlib.Area
-    function AreaClass.from_array(array)
-        local left_top = Position.from_vector(array[1])
-        local right_bottom = Position.from_vector(array[2])
-        return setmetatable({ left_top = left_top, right_bottom = right_bottom, orientation = array[3] }, area_mt)
-    end
-    AreaClass.unpack = AreaClass.from_array
-
-    --- @param area_string string
-    --- @return stdlib.Area
-    function AreaClass.from_string(area_string)
-        return AreaClass.new(load('return ' .. area_string)())
-    end
-
-    --- @overload fun(): stdlib.Area
-    --- @overload fun(ltx:double, lty:double, rbx:double, rby:double, ori?:float): stdlib.Area
-    --- @overload fun(area: any): stdlib.Area
-    --- @nodiscard
-    function AreaClass.new(ltx, lty, rbx, rby, ori)
-        if not ltx then return new(0, 0, 0, 0, ori) end
-
-        local typeof = type(ltx)
-        if typeof == 'table' then
-            local area = ltx ---@type stdlib.Area|BoundingBox|PackedBoundingBox
-            local left_top = Position.from_table(area.left_top or area[1])
-            local right_bottom = Position.from_table(area.right_bottom or area[2])
-            ori = area.orientation or area[3]
-            return setmetatable({ left_top = left_top, right_bottom = right_bottom, orientation = ori }, area_mt)
-        end
-        ---@cast ltx double
-        if typeof == 'number' then return new(ltx, lty, rbx, rby, ori) end
-        if typeof == 'string' then return AreaClass.from_string(ltx) end
-        error('Not a bounding box or convertible to a bounding box')
-    end
-
-    --- Return mutable Area or new Area if not an Area
-    --- @overload fun(_: stdlib.AreaClass, ltx: double, lty: double, rbx: double, rby: double, ori?: float): stdlib.Area
-    local function __call(_, ltx, lty, rbx, rby, ori)
-        if not ltx then return new(0, 0, 0, 0, ori) end
-
-        local metatable = getmetatable(ltx)
-        if metatable then if metatable == area_mt then return ltx end end
-
-        local typeof = type(ltx)
-        if typeof == 'table' then
-            local area = ltx ---@type BoundingBox
-            if area.left_top and area.right_bottom then
-                area.left_top = Position(area.left_top)
-                area.right_bottom = Position(area.right_bottom)
-                return setmetatable(area, area_mt)
-            end
-            if area[1] and area[2] then return AreaClass.new(area) end
-            error('Not a bounding box type')
-        end
-        ---@cast ltx double
-        if typeof == 'number' then return new(ltx, lty, rbx, rby, ori) end
-        if typeof == 'string' then return AreaClass.from_string(ltx) end
-        error('Not a bounding box type or convertible to a bounding box type')
-    end
-    setmetatable(AreaClass, { __call = __call })
-
-    return AreaClass
-end
+---@class AreaArray
+---@field [1] number
+---@field [2] number
+---@field [3] number
+---@field [4] number
+---@field [5] float?
