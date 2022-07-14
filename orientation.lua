@@ -29,7 +29,7 @@ end
 ---@return float
 ---@nodiscard
 function Orientation.opposite(orientation)
-  return (orientation + 0.5) % 1 --[[@as float]]
+  return (orientation + 0.5) % 1.0
 end
 
 ---Add two orientations together.
@@ -38,7 +38,16 @@ end
 ---@return float
 ---@nodiscard
 function Orientation.add(orientation1, orientation2)
-  return (orientation1 + orientation2) % 1 --[[@as float]]
+  return (orientation1 + orientation2) % 1.0
+end
+
+---Multiply two orientations together.
+---@param orientation1 float
+---@param orientation2 float
+---@return float
+---@nodiscard
+function Orientation.multiply(orientation1, orientation2)
+  return (orientation1 * orientation2) % 1.0
 end
 
 return Orientation

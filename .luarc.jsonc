@@ -55,6 +55,7 @@
     "spell.dict": [],
     "type.castNumberToInteger": false,
     "type.weakUnionCheck": false,
+    "hover.expandAlias": false,
     "workspace.checkThirdParty": false,
     "workspace.ignoreDir": [
         ".vscode/",

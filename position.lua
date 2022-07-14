@@ -1,14 +1,14 @@
 ---@class PositionClass
 ---@operator call (AnyPosOrVec):Position
----@field Area AreaClass?
+---@field AreaClass AreaClass?
 local PositionClass = {}
 
 ---@class Position: MapPosition
 local Position = {}
 local position_meta = {}
 
-local Direction = require("__stdlib__/direction")
-local math = require("__stdlib__/math") --[[@as mathlibext]]
+local Direction = require("__stdlib2__/direction")
+local math = require("__stdlib2__/math") --[[@as mathlibext]]
 
 local floor, ceil, round, abs = math.floored, math.ceiled, math.round, math.abs
 local atan2, deg, acos, sqrt = math.atan2, math.deg, math.acos, math.sqrt
@@ -53,14 +53,7 @@ local function as_tuple(pos)
 end
 
 -- =============================================================================
-do -- Position Constructors
-
-  ---@param x? number
-  ---@param y? number
-  function Position:update(x, y)
-    self.x, self.y = x or self.x, y or self.y
-    return self
-  end
+do ---@block Position Constructors
 
   ---@param metatable? Position
   ---@return Position
@@ -71,7 +64,14 @@ do -- Position Constructors
 
 end
 -------------------------------------------------------------------------------
-do -- Methods
+do ---@block Methods
+
+  ---@param x? number
+  ---@param y? number
+  function Position:update(x, y)
+    self.x, self.y = x or self.x, y or self.y
+    return self
+  end
 
   function Position:normalize()
     self.x, self.y = (self.x * 0.00390625) / 0.00390625, (self.y * 0.00390625) / 0.00390625
@@ -186,57 +186,104 @@ do -- Methods
     return Position.add(self, Direction.to_vector(dir, distance))
   end
 
-  function Position:as_chunk_position()
+  function Position:chunk_position()
     self.x, self.y = floor(self.x / 32), floor(self.y / 32)
     return self
   end
 
-  function Position:as_pixel_position()
+  function Position:pixel_position()
     self.x, self.y = self.x * 32, self.y * 32
     return self
   end
 
-  Position.as_tile_position = Position.floor
+  Position.tile_position = Position.floor
 
 end
 -------------------------------------------------------------------------------
-do -- Position Conversion
+do ---@block Position Class Mutates
+
+  function Position:as_map_position()
+    return self
+  end
+
+  function Position:as_chunk_position()
+    return self
+  end
+
+  function Position:as_pixel_position()
+    return self
+  end
+
+  function Position:as_tile_position()
+    return self
+  end
+
+end
+-------------------------------------------------------------------------------
+do ---@block Position Conversion Costructors
 
   function Position:to_chunk_position()
-    return Position.as_chunk_position(Position.copy(self))
+    return Position.chunk_position(Position.copy(self))
   end
 
   function Position:to_tile_position()
-    return Position.as_tile_position(Position.copy(self))
+    return Position.tile_position(Position.copy(self))
   end
 
   function Position:to_pixel_position()
-    return Position.as_pixel_position(Position.copy(self))
+    return Position.pixel_position(Position.copy(self))
   end
 
 end
 -------------------------------------------------------------------------------
-do -- Area Conversions
+do ---@block Area Conversion Constructors
 
-  function Position:to_area()
-    if not PositionClass.Area then error("'AreaClass' must be required before 'PositionClass'") end
+  ---Expands from the center outwards towards the vector
+  ---@param vector? AnyPosOrVec|number
+  function Position:to_area(vector)
+    if not PositionClass.AreaClass then error("'AreaClass' must be required before 'PositionClass'") end
+    return PositionClass.AreaClass.from_position(self, vector)
   end
 
-  function Position:to_area_top_left()
-    if not PositionClass.Area then error("'AreaClass' must be required before 'PositionClass'") end
+  ---Expands from the position outwards towards the vector
+  ---@param vector? AnyPosOrVec|number
+  function Position:to_area_left_top(vector)
+    if not PositionClass.AreaClass then error("'AreaClass' must be required before 'PositionClass'") end
+    return PositionClass.AreaClass.from_left_top(self, vector)
   end
 
+  --- Turn a position into a chunks area
   function Position:to_chunk_area()
-    if not PositionClass.Area then error("'AreaClass' must be required before 'PositionClass'") end
+    if not PositionClass.AreaClass then error("'AreaClass' must be required before 'PositionClass'") end
+    local ltx, lty = self.x, self.y
+    ltx, lty = ltx - ltx % 32, lty - lty % 32
+    local rbx, rby = ltx + 32, lty + 32
+    return PositionClass.AreaClass.construct(ltx, lty, rbx, rby)
   end
 
   function Position:to_chunk_tile_area()
-    if not PositionClass.Area then error("'AreaClass' must be required before 'PositionClass'") end
+    if not PositionClass.AreaClass then error("'AreaClass' must be required before 'PositionClass'") end
+    local ltx, lty = self.x, self.y
+    ltx, lty = ltx - ltx % 32, lty - lty % 32
+    local rbx, rby = ltx + 31, lty + 31
+    return PositionClass.AreaClass.construct(ltx, lty, rbx, rby)
+  end
+
+  function Position:to_chunk_area_from_chunk_position()
+    local ltx, lty = self.x * 32, self.y * 32
+    local rbx, rby = ltx + 32, lty + 32
+    return PositionClass.AreaClass.construct(ltx, lty, rbx, rby)
+  end
+
+  function Position:to_chunk_tile_area_from_chunk_position()
+    local ltx, lty = self.x * 32, self.y * 32
+    local rbx, rby = ltx + 31, lty + 31
+    return PositionClass.AreaClass.construct(ltx, lty, rbx, rby)
   end
 
 end
 -------------------------------------------------------------------------------
-do -- Numbers
+do ---@block Numbers
 
   ---Gets the squared length of a position
   function Position:len_squared()
@@ -320,7 +367,7 @@ do -- Numbers
 
 end
 -------------------------------------------------------------------------------
-do -- Booleans
+do ---@block Booleans
 
   function Position:inside(area)
     local lt = area.left_top
@@ -338,7 +385,7 @@ do -- Booleans
 
 end
 -------------------------------------------------------------------------------
-do -- Other
+do ---@block Other
 
   ---@return MapVector
   function Position:pack()
@@ -351,7 +398,7 @@ do -- Other
 
 end
 -------------------------------------------------------------------------------
-do -- Strings
+do ---@block Strings
 
   ---@param surface_name string
   function Position:to_gps_tag(surface_name)
@@ -384,7 +431,7 @@ do -- Strings
 
 end
 -- ============================================================================
-do -- Metatamethods
+do ---@block Metatamethods
 
   ---@param self Position
   position_meta.__call = function(self) return Position.copy(self) end
@@ -459,7 +506,7 @@ do -- Metatamethods
 end
 -- ============================================================================
 
-do -- PositionClass Constructors
+do ---@block PositionClass Constructors
 
   ---@param position? AnyPosOrVec
   ---@return Position
@@ -524,9 +571,25 @@ return PositionClass
 ---@operator div (number|AnyPosOrVec):Position
 ---@operator mod (Position):Position
 
----@alias AnyPosition Position|MapPosition|ChunkPosition|TilePosition
----@alias AnyPosOrVec AnyPosition|MapVector
+---@alias AnyPositionClass Position
+---@alias AnyPosition Position|MapPosition|ChunkPosition|TilePosition|PixelPosition
+---@alias AnyVector MapVector|ChunkVector|TileVector|PixelVector
+---@alias AnyPosOrVec AnyPosition|AnyVector
+
+---@class PixelPosition: MapPosition
 
 ---@class MapVector
----@field [1] number
----@field [2] number
+---@field [1] double
+---@field [2] double
+
+---@class ChunkVector
+---@field [1] integer
+---@field [2] integer
+
+---@class TileVector
+---@field [1] integer
+---@field [2] integer
+
+---@class PixelVector
+---@field [1] double
+---@field [2] double
