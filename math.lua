@@ -3,12 +3,12 @@
 ---@class mathlibext: mathlib
 local math = {}
 
+-- Import lua math functions
+for name, func in pairs(_ENV.math) do math[name] = func end
+
 local unpack = table.unpack
 local math_floor, math_ceil = math.floor, math.ceil
 local math_max, math_min = math.max, math.min
-
--- Import lua math functions
-for name, func in pairs(_ENV.math) do math[name] = func end
 
 ---Multiply by degrees to convert to radians.
 ---```lua
