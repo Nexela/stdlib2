@@ -6,11 +6,12 @@ local AreaClass = {}
 local Area = {}
 local area_meta = {}
 
-local Position = require("__stdlib2__/position")
+local PositionClass = require("__stdlib2__/position")
 local Orientation = require("__stdlib2__/orientation")
-Position.AreaClass = AreaClass
-local as_pos_tuple_any = Position.as_tuple_any ---@diagnostic disable-line: unused-local
-local as_pos_tuple = Position.as_tuple
+PositionClass.Area = AreaClass
+AreaClass.Position = PositionClass
+local as_pos_tuple_any = PositionClass.as_tuple_any ---@diagnostic disable-line: unused-local
+local as_pos_tuple = PositionClass.as_tuple
 
 local setmetatable = setmetatable
 local abs = math.abs
@@ -26,7 +27,7 @@ local concat = table.concat
 ---@return Area
 ---@nodiscard
 local function new(ltx, lty, rbx, rby, ori, metatable)
-  local lt, rb = Position.construct(ltx, lty), Position.construct(rbx, rby)
+  local lt, rb = PositionClass.construct(ltx, lty), PositionClass.construct(rbx, rby)
   local area = setmetatable({ left_top = lt, right_bottom = rb, orientation = ori }, metatable or area_meta)
   assert(Area.is_normal(area), "Area is not normalized.")
   return area
@@ -41,7 +42,7 @@ end
 ---@return Area
 ---@nodiscard
 local function new_safe(ltx, lty, rbx, rby, ori, metatable)
-  local lt, rb = Position.load { x = ltx, y = lty }, Position.load { x = rbx, y = rby }
+  local lt, rb = PositionClass.load { x = ltx, y = lty }, PositionClass.load { x = rbx, y = rby }
   local area = setmetatable({ left_top = lt, right_bottom = rb, orientation = ori }, metatable or area_meta)
   return area
 end
@@ -86,25 +87,25 @@ end
 -------------------------------------------------------------------------------
 do ---@block Position Conversions
 
-  ---@return Position
+  ---@return MapPositionClass
   ---@nodiscard
   function Area:center()
     local width, height = Area.dimensions(self)
-    return Position.construct_safe(width / 2, height / 2)
+    return PositionClass.construct_safe(width / 2, height / 2)
   end
 
-  ---@return Position
+  ---@return MapPositionClass
   ---@nodiscard
   function Area:get_left_bottom()
     local lt = self.left_top
-    return Position.construct_safe(lt.x, lt.y + Area.get_height(self))
+    return PositionClass.construct_safe(lt.x, lt.y + Area.get_height(self))
   end
 
-  ---@return Position
+  ---@return MapPositionClass
   ---@nodiscard
   function Area:get_right_top()
     local lt = self.left_top
-    return Position.construct_safe(lt.x + Area.get_width(self), lt.y)
+    return PositionClass.construct_safe(lt.x + Area.get_width(self), lt.y)
   end
 
 end
@@ -450,8 +451,8 @@ do ---@block Metamethods
 
   ---@param self Area
   area_meta.__newindex = function(self, key, value)
-    if key == 1 then rawset(self, "left_top", Position.new(value))
-    elseif key == 2 then rawset(self, "right_bottom", Position.new(value))
+    if key == 1 then rawset(self, "left_top", PositionClass.new(value))
+    elseif key == 2 then rawset(self, "right_bottom", PositionClass.new(value))
     elseif key == 3 then rawset(self, "orientation", value)
     else rawset(self, key, value) end
   end
@@ -471,8 +472,8 @@ do ---@block AreaClass Constructors
   ---@nodiscard
   function AreaClass.new(area)
     if not area then return AreaClass.zero() end
-    local lt = Position.new(area.left_top or area[1])
-    local rb = Position.new(area.right_bottom or area[2])
+    local lt = PositionClass.new(area.left_top or area[1])
+    local rb = PositionClass.new(area.right_bottom or area[2])
     local o = area.orientation or area[3]
     return setmetatable({ left_top = lt, right_bottom = rb, orientation = o }, area_meta)
   end
@@ -559,8 +560,8 @@ do ---@block AreaClass Constructors
     return new_safe(-1, -1, 1, 1)
   end
 
-  ---@param left_top Position
-  ---@param right_bottom Position
+  ---@param left_top MapPositionClass
+  ---@param right_bottom MapPositionClass
   ---@return Area
   ---@nodiscard
   function AreaClass.load_from_positions(left_top, right_bottom)
@@ -570,8 +571,8 @@ do ---@block AreaClass Constructors
   ---@param area AnyArea
   ---@return Area
   function AreaClass.load(area)
-    Position.load(area.left_top)
-    Position.load(area.right_bottom)
+    PositionClass.load(area.left_top)
+    PositionClass.load(area.right_bottom)
     return setmetatable(area, area_meta) --[[@as Area]]
   end
 
@@ -590,10 +591,10 @@ end
 return AreaClass
 
 ---@class Area
----@field left_top Position
----@field right_bottom Position
----@field right_top Position
----@field left_bottom Position
+---@field left_top MapPositionClass
+---@field right_bottom MapPositionClass
+---@field right_top MapPositionClass
+---@field left_bottom MapPositionClass
 ---@field orientation float? RealOrientation
 ---@field width number
 ---@field height number
