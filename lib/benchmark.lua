@@ -8,14 +8,6 @@ local table_concat = table.concat
 local math_abs = math.abs
 local os_clock = os.clock
 
----@param ... number
-local function math_sum(...)
-  local set = {...}
-  local sum = set[1] or 0
-  for i = 2, #set do sum = sum + set[i] end
-  return sum
-end
-
 local table_keys = function(table)
   local keys = {}
   for k, _ in pairs(table) do
@@ -52,10 +44,12 @@ local function new(func, ...)
     options = {
       unit = "seconds",
       dec_places = 2,
-      times = 1
+      times = 1,
+      avg_unit = "seconds"
     },
     has_ever_ran = false
   }
+
 
   local benchmark = { func = func, params = { ... }, elapsed = {} } ---@type Benchmark.benchmark
 
@@ -75,7 +69,6 @@ function Benchmark:run(times)
       if self.run_before_each then self.run_before_each.func(table_unpack(self.run_before_each.params)) end
       if benchmark.run_before then benchmark.run_before.func(table_unpack(benchmark.run_before.params)) end
       repeat start = os_clock() until (start ~= 0)
-      benchmark.func(table_unpack(benchmark.params))
       benchmark.func(table_unpack(benchmark.params))
       repeat finish = os_clock() until (finish ~= 0)
       if benchmark.run_after then benchmark.run_after.func(table_unpack(benchmark.run_after.params)) end
@@ -109,6 +102,7 @@ function Benchmark:set(options)
   self.options.unit = check_unit(options.unit) or self.options.unit
   self.options.dec_places = options.dec_places or self.options.dec_places
   self.options.times = options.times or self.options.times
+  self.options.avg_unit = check_unit(options.avg_unit) or self.options.unit
   return self
 end
 
@@ -145,6 +139,8 @@ do ---@block Strings
     unit = check_unit(unit) or self.options.unit
     dec_places = dec_places or self.options.dec_places
     local multiplier = units[unit]
+    local avg_unit = self.options.avg_unit
+    local avg_multiplier = units[avg_unit]
 
     local results = {}
     local comparisons = {}
@@ -160,11 +156,14 @@ do ---@block Strings
           dec_places,
           "f %s avg execution time.",
         }
-        local sum = math_sum(table_unpack(benchmark.elapsed))
+        local sum = 0
+        for j = 1, #benchmark.elapsed do
+          sum = sum + benchmark.elapsed[j]
+        end
         local avg = sum / #benchmark.elapsed
         local total_time = sum * multiplier
-        local avg_time = avg * multiplier
-        local str = table_concat(str_tab):format(i, #benchmark.elapsed, total_time, unit, avg_time, unit)
+        local avg_time = avg * avg_multiplier
+        local str = table_concat(str_tab):format(i, #benchmark.elapsed, total_time, unit, avg_time, avg_unit)
         comparisons[i] = avg
         table_insert(results, str)
       end
@@ -277,6 +276,7 @@ return new
 ---@field unit Benchmark.units
 ---@field times integer
 ---@field dec_places integer
+---@field avg_unit Benchmark.units
 
 ---@alias Benchmark.units
 ---| 'seconds'
