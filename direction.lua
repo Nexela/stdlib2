@@ -76,9 +76,10 @@ function Direction.to_vector(direction, distance)
 end
 
 ---Calculate a two-dimensional vector from a cardinal direction.
+---A negative orthogonal distance will move "left" and a positive distance will move "right" from the perspective of the direction.
 ---@param direction defines.direction
 ---@param longitudinal number Distance to move in the specified direction.
----@param orthogonal number Distance to move perpendicular to the specified direction. A negative distance will move "left" and a positive distance will move "right" from the perspective of the direction.
+---@param orthogonal number Distance to move perpendicular to the specified direction.
 ---@return MapVector
 ---@nodiscard
 function Direction.to_vector_2d(direction, longitudinal, orthogonal)

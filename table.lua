@@ -204,7 +204,7 @@ end
 ---@param from_k k The key to start iteration at, or `nil` to start at the beginning of `tbl`. If the key does not exist in `tbl`, it will be treated as `nil`, _unless_ a custom `_next` function is used.
 ---@param n number The number of items to iterate.
 ---@param callback fun(v: v, k: k, ...):any, boolean, boolean Receives `value`, `key`, `...` as parameters.
----@param _next? fun(tbl: table<k, v>, index:k|nil, ...):k, v A custom `next()` function. If not provided, the default `next()` will be used. Receives `tbl`, `key`, `...` as parameters.
+---@param _next? fun(tbl: table<k, v>, index:k|nil, ...):k, v A custom `next()` function. If not provided, the default `next()`
 ---@vararg ...? Additional parameters for callback/next if needed.
 ---@return any next_key Where the iteration ended. Can be any valid table key, or `nil`. Pass this as `from_k` in the next call to `for_n_of` for `tbl`.
 ---@return table<k, any> results The results compiled from the first return of `callback`.
@@ -359,10 +359,12 @@ end
 
 ---Partially sort an array.
 ---
----This function utilizes [insertion sort](https://en.wikipedia.org/wiki/Insertion_sort), which is _extremely_ inefficient with large data sets. However, you can spread the sorting over multiple ticks, reducing the performance impact. Only use this function if `table.sort` is too slow.
+---This function utilizes [insertion sort](https://en.wikipedia.org/wiki/Insertion_sort),
+---which is _extremely_ inefficient with large data sets. However, you can spread the sorting over multiple ticks,
+---reducing the performance impact. Only use this function if `table.sort` is too slow.
 ---@param arr array
 ---@param from_index number The index to start iteration at (inclusive). Pass `nil` or a number less than `2` to begin at the start of the array.
----@param iterations number The number of iterations to perform. Higher is more performance-heavy. This number should be adjusted based on the performance impact of the custom `comp` function (if any) and the size of the array.
+---@param iterations number The number of iterations to perform. Higher is more performance-heavy.
 ---@param comp? fun(a, b, ...):boolean A comparison function for sorting. Must return truthy if `a < b`.
 ---@vararg ...? Additional parameters for comp if needed.
 ---@return number? next_index The index to start the next iteration at, or `nil` if the end was reached.
@@ -398,9 +400,11 @@ end
 ---local sum = table.reduce(tbl, function(acc, v) return acc + v end)
 ---local sum_minus_ten = table.reduce(tbl, function(acc, v) return acc + v end, -10)
 ---```
+---If initial_value is not provided or is falsy, the first value in the table will be used as the initial `accumulator` value and skipped as `key`.
+---Calling `reduce()` on an empty table without an `initial_value` will cause a crash.
 ---@param tbl table
 ---@param reducer fun(accumulator, value, key, ...):any
----@param initial_value? any The initial value for the accumulator. If not provided or is falsy, the first value in the table will be used as the initial `accumulator` value and skipped as `key`. Calling `reduce()` on an empty table without an `initial_value` will cause a crash.
+---@param initial_value? any The initial value for the accumulator.
 ---@vararg ...? Additional parameters for reducer if needed.
 ---@return any #The accumulated value.
 function table.reduce(tbl, reducer, initial_value, ...)
