@@ -1,15 +1,20 @@
 ---@class PositionClass
----@field MapPositionClass MapPositionClass
----@field ChunkPositionClass ChunkPositionClass
----@field TilePositionClass TilePositionClass
----@field PixelPositionClass PixelPositionClass
----@field Area Area?
+---@field private MapPositionClass MapPositionClass
+---@field private ChunkPositionClass ChunkPositionClass
+---@field private TilePositionClass TilePositionClass
+---@field private PixelPositionClass PixelPositionClass
+---@field private Map MapPositionClass
+---@field private Chunk ChunkPositionClass
+---@field private Tile TilePositionClass
+---@field private Pixel PixelPositionClass
+---@field private Area Area?
 local PositionClass = {}
 
 local Direction = require("__stdlib2__/direction")
 local math = require("__stdlib2__/math") --[[@as mathlibext]]
 
 local floor, ceil, round, abs = math.floored, math.ceiled, math.round, math.abs
+local math_floor = math.floor
 local atan2, deg, acos, sqrt = math.atan2, math.deg, math.acos, math.sqrt
 local concat = table.concat
 local setmetatable = setmetatable
@@ -23,24 +28,49 @@ do ---@block Position
 
     ---@generic Class: AnyPositionClass
     ---@param self Class
-    ---@param x number
-    ---@param y number
-    ---@param class? Class
+    ---@param position AnyPosOrVec
+    ---@param class Class
     ---@return Class
     ---@nodiscard
-    function PositionClass:new(x, y, class)
-      assert(x and y)
-      return setmetatable({ x = x, y = y }, class or getmetatable(self))
+    function PositionClass:new(position, class)
+      assert(type(position) == "table" and position.x or position[1], "PositionClass:new: position must be a Position")
+      class = class or getmetatable(self)
+      if class == PositionClass.ChunkPositionClass or class == PositionClass.TilePositionClass then
+        assert(math_floor(position.x) == position.x and math_floor(position.y) == position.y, "PositionClass.construct: x and y must be integers")
+      end
+      return setmetatable({ x = position.x or position[1], y = position.y or position[2] }, class)
+    end
+
+    ---@todo Needs overload generic support
+    ---@generic Class: AnyPositionClass
+    ---@param self Class
+    ---@param x number
+    ---@param y number
+    ---@param class Class
+    ---@return Class
+    ---@nodiscard
+    function PositionClass:construct(x, y, class)
+      assert(x and y, "PositionClass.construct: x and y must be numbers")
+      class = class or getmetatable(self)
+      if class == PositionClass.ChunkPositionClass or class == PositionClass.TilePositionClass then
+        assert(math_floor(x) == x and math_floor(y) == y, "PositionClass.construct: x and y must be integers")
+      end
+      return setmetatable({ x = x, y = y }, class )
+    end
+
+    ---@todo Needs overload generic support
+    ---@generic Class: AnyPositionClass
+    ---@return Class
+    ---@nodiscard
+    function PositionClass:copy()
+      return setmetatable({ x = self.x, y = self.y }, getmetatable(self))
     end
 
     ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@param metatable? Class
+    ---@param class Class
     ---@return Class
-    ---@nodiscard
-    function PositionClass:copy(metatable)
-      ---@diagnostic disable-next-line: undefined-field
-      return setmetatable({ x = self.x, y = self.y }, metatable or getmetatable(self))
+    function PositionClass:copy_as(class)
+      return setmetatable({ x = self.x, y = self.y }, class)
     end
 
   end
@@ -354,8 +384,8 @@ do ---@block Position
       return self.x >= lt.x and self.y >= lt.y and self.x <= rb.x and self.y <= rb.y
     end
 
-    function PositionClass:is_zero() return
-      self.x == 0 and self.y == 0
+    function PositionClass:is_zero()
+      return self.x == 0 and self.y == 0
     end
 
     ---@param other AnyPosOrVec
@@ -398,12 +428,6 @@ do ---@block Position
   -------------------------------------------------------------------------------
   do ---@block Strings
 
-    ---@param surface_name? string
-    ---@nodiscard
-    function PositionClass:to_gps_tag(surface_name)
-      return concat { "[gps=", self.x, ",", self.y, surface_name and ("," .. surface_name) or "", "]" }
-    end
-
     ---@param precision? float
     ---@nodiscard
     function PositionClass:to_string(precision)
@@ -433,7 +457,6 @@ end
 
 do ---@block Metatamethods
 
-
   PositionClass.__call = function(self) return PositionClass.copy(self) end
   PositionClass.__tostring = PositionClass.to_string
   PositionClass.__concat = function(self, other) return tostring(self) .. tostring(other) end
@@ -451,7 +474,7 @@ do ---@block Metatamethods
     local metatable = getmetatable(self) or getmetatable(other)
     local self_x, self_y = PositionClass.as_tuple_any(self)
     local other_x, other_y = PositionClass.as_tuple_any(other)
-    return PositionClass:new(self_x + other_x, self_y + other_y, metatable)
+    return PositionClass:construct(self_x + other_x, self_y + other_y, metatable)
   end
 
   ---@param self AnyPosOrVec|number
@@ -460,7 +483,7 @@ do ---@block Metatamethods
     local metatable = getmetatable(self) or getmetatable(other)
     local self_x, self_y = PositionClass.as_tuple_any(self)
     local other_x, other_y = PositionClass.as_tuple_any(other)
-    return PositionClass:new(self_x - other_x, self_y - other_y, metatable)
+    return PositionClass:construct(self_x - other_x, self_y - other_y, metatable)
   end
 
   ---@param self AnyPosOrVec|number
@@ -469,7 +492,7 @@ do ---@block Metatamethods
     local metatable = getmetatable(self) or getmetatable(other)
     local self_x, self_y = PositionClass.as_tuple_any(self)
     local other_x, other_y = PositionClass.as_tuple_any(other)
-    return PositionClass:new(self_x * other_x, self_y * other_y, metatable)
+    return PositionClass:construct(self_x * other_x, self_y * other_y, metatable)
   end
 
   ---@param self AnyPosOrVec|number
@@ -478,7 +501,7 @@ do ---@block Metatamethods
     local metatable = getmetatable(self) or getmetatable(other)
     local self_x, self_y = PositionClass.as_tuple_any(self)
     local other_x, other_y = PositionClass.as_tuple_any(other)
-    return PositionClass:new(self_x / other_x, self_y / other_y, metatable)
+    return PositionClass:construct(self_x / other_x, self_y / other_y, metatable)
   end
 
   ---@param self AnyPosOrVec|number
@@ -487,7 +510,7 @@ do ---@block Metatamethods
     local metatable = getmetatable(self) or getmetatable(other)
     local self_x, self_y = PositionClass.as_tuple_any(self)
     local other_x, other_y = PositionClass.as_tuple_any(other)
-    return PositionClass:new(self_x % other_x, self_y % other_y, metatable)
+    return PositionClass:construct(self_x % other_x, self_y % other_y, metatable)
   end
 end
 

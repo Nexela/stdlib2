@@ -94,21 +94,21 @@ do ---@block Position Conversions
   ---@nodiscard
   function AreaClass:center()
     local width, height = AreaClass.dimensions(self)
-    return Position.construct_safe(width / 2, height / 2)
+    return Position.construct_unsafe(width / 2, height / 2)
   end
 
   ---@return MapPositionClass
   ---@nodiscard
   function AreaClass:get_left_bottom()
     local lt = self.left_top
-    return Position.construct_safe(lt.x, lt.y + AreaClass.get_height(self))
+    return Position.construct_unsafe(lt.x, lt.y + AreaClass.get_height(self))
   end
 
   ---@return MapPositionClass
   ---@nodiscard
   function AreaClass:get_right_top()
     local lt = self.left_top
-    return Position.construct_safe(lt.x + AreaClass.get_width(self), lt.y)
+    return Position.construct_unsafe(lt.x + AreaClass.get_width(self), lt.y)
   end
 
 end
