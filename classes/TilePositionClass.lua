@@ -8,19 +8,19 @@ do ---@block TilePosition
 
   ---@return MapPositionClass
   function TilePositionClass:to_map_position()
-    return PositionClass.copy_as(self, PositionClass.MapPositionClass)
+    return PositionClass.copy_as(self, PositionClass.Map)
   end
 
   ---@return ChunkPositionClass
   function TilePositionClass:to_chunk_position()
-    local chunk_pos = PositionClass.copy_as(self, PositionClass.ChunkPositionClass)
+    local chunk_pos = PositionClass.copy_as(self, PositionClass.Chunk)
     chunk_pos.x, chunk_pos.y = chunk_pos.x / 32, chunk_pos.y / 32
     return chunk_pos
   end
 
   ---@return PixelPositionClass
   function TilePositionClass:to_pixel_position()
-    local pixel_pos = PositionClass.copy_as(self, PositionClass.PixelPositionClass)
+    local pixel_pos = PositionClass.copy_as(self, PositionClass.Pixel)
     pixel_pos.x, pixel_pos.y = pixel_pos.x * 32, pixel_pos.y * 32
     return pixel_pos
   end

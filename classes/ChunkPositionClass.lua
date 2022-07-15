@@ -10,21 +10,21 @@ do ---@block ChunkPosition
 
   ---@return MapPositionClass
   function ChunkPositionClass:to_map_position()
-    local map_pos = PositionClass.copy_as(self, PositionClass.MapPositionClass)
+    local map_pos = PositionClass.copy_as(self, PositionClass.Map)
     map_pos.x, map_pos.y = map_pos.x * 32, map_pos.y * 32
     return map_pos
   end
 
   ---@return TilePositionClass
   function ChunkPositionClass:to_tile_position()
-    local tile_pos = PositionClass.copy_as(self, PositionClass.TilePositionClass)
+    local tile_pos = PositionClass.copy_as(self, PositionClass.Tile)
     tile_pos.x, tile_pos.y = tile_pos.x * 32, tile_pos.y * 32
     return tile_pos
   end
 
   ---@return PixelPositionClass
   function ChunkPositionClass:to_pixel_position()
-    local pixel_pos = PositionClass.copy_as(self, PositionClass.PixelPositionClass)
+    local pixel_pos = PositionClass.copy_as(self, PositionClass.Pixel)
     pixel_pos.x, pixel_pos.y = pixel_pos.x * 32 * 32, pixel_pos.y * 32 * 32
     return pixel_pos
   end

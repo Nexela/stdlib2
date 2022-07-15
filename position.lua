@@ -3,23 +3,15 @@ local Position = {}
 __POSITION_DEBUG__ = __POSITION_DEBUG__ or nil
 
 local PositionClass = require("__stdlib2__/classes/PositionClass")
-PositionClass.MapPositionClass = require("__stdlib2__/classes/MapPositionClass")
-PositionClass.ChunkPositionClass = require("__stdlib2__/classes/ChunkPositionClass")
-PositionClass.TilePositionClass = require("__stdlib2__/classes/TilePositionClass")
-PositionClass.PixelPositionClass = require("__stdlib2__/classes/PixelPositionClass")
-PositionClass.Map = PositionClass.MapPositionClass
-PositionClass.Chunk = PositionClass.ChunkPositionClass
-PositionClass.Tile = PositionClass.TilePositionClass
-PositionClass.Pixel = PositionClass.PixelPositionClass
+PositionClass.Map = require("__stdlib2__/classes/MapPositionClass")
+PositionClass.Chunk = require("__stdlib2__/classes/ChunkPositionClass")
+PositionClass.Tile = require("__stdlib2__/classes/TilePositionClass")
+PositionClass.Pixel = require("__stdlib2__/classes/PixelPositionClass")
 
-Position.MapPositionClass = PositionClass.MapPositionClass
-Position.ChunkPositionClass = PositionClass.ChunkPositionClass
-Position.TilePositionClass = PositionClass.TilePositionClass
-Position.PixelPositionClass = PositionClass.PixelPositionClass
-Position.Map = PositionClass.MapPositionClass
-Position.Chunk = PositionClass.ChunkPositionClass
-Position.Tile = PositionClass.TilePositionClass
-Position.Pixel = PositionClass.PixelPositionClass
+Position.Map = PositionClass.Map
+Position.Chunk = PositionClass.Chunk
+Position.Tile = PositionClass.Tile
+Position.Pixel = PositionClass.Pixel
 
 local math_floor = math.floor
 
@@ -33,7 +25,7 @@ local math_floor = math.floor
 ---@nodiscard
 ---@overload fun(x: double, y: double): MapPositionClass
 local function new(x, y, class)
-  class = class or Position.MapPositionClass
+  class = class or Position.Map
   return setmetatable({ x = x, y = y }, class)
 end
 
@@ -52,7 +44,7 @@ do ---@block Position Constructors
   Position.new = function(position, class)
     if not position then return Position.zero(class) end
     assert(type(position) == "table", "Position.new: position must be a MapPosition")
-    if class == Position.ChunkPositionClass or class == Position.TilePositionClass then
+    if class == Position.Chunk or class == Position.Tile then
       assert(math_floor(position.x) == position.x and math_floor(position.y) == position.y, "PositionClass.construct: x and y must be integers")
     end
     return new(position.x or position[1], position.y or position[2], class)
@@ -78,7 +70,7 @@ do ---@block Position Constructors
   ---@overload fun(x: double, y: double): MapPositionClass
   Position.construct = function(x, y, class)
     assert(x and y, "PositionClass.construct: x and y must be numbers")
-    if class == Position.ChunkPositionClass or class == Position.TilePositionClass then
+    if class == Position.Chunk or class == Position.Tile then
       assert(math_floor(x) == x and math_floor(y) == y, "PositionClass.construct: x and y must be integers")
     end
     return new(x, y, class)
@@ -125,7 +117,7 @@ do ---@block Position Constructors
   ---@return Class
   ---@overload fun(position: AnyPosition): MapPositionClass
   Position.load = function(position, class)
-    class = class or Position.MapPositionClass
+    class = class or Position.Map
     return setmetatable(position, class)
   end
 

@@ -1,8 +1,4 @@
 ---@class PositionClass
----@field private MapPositionClass MapPositionClass
----@field private ChunkPositionClass ChunkPositionClass
----@field private TilePositionClass TilePositionClass
----@field private PixelPositionClass PixelPositionClass
 ---@field private Map MapPositionClass
 ---@field private Chunk ChunkPositionClass
 ---@field private Tile TilePositionClass
@@ -35,7 +31,7 @@ do ---@block Position
     function PositionClass:new(position, class)
       assert(type(position) == "table" and position.x or position[1], "PositionClass:new: position must be a Position")
       class = class or getmetatable(self)
-      if class == PositionClass.ChunkPositionClass or class == PositionClass.TilePositionClass then
+      if class == PositionClass.Chunk or class == PositionClass.Tile then
         assert(math_floor(position.x) == position.x and math_floor(position.y) == position.y, "PositionClass.construct: x and y must be integers")
       end
       return setmetatable({ x = position.x or position[1], y = position.y or position[2] }, class)
@@ -52,7 +48,7 @@ do ---@block Position
     function PositionClass:construct(x, y, class)
       assert(x and y, "PositionClass.construct: x and y must be numbers")
       class = class or getmetatable(self)
-      if class == PositionClass.ChunkPositionClass or class == PositionClass.TilePositionClass then
+      if class == PositionClass.Chunk or class == PositionClass.Tile then
         assert(math_floor(x) == x and math_floor(y) == y, "PositionClass.construct: x and y must be integers")
       end
       return setmetatable({ x = x, y = y }, class )
@@ -263,28 +259,28 @@ do ---@block Position
     ---@param self Class
     ---@return MapPositionClass
     function PositionClass:as_map_position()
-      return setmetatable(self, PositionClass.MapPositionClass)
+      return setmetatable(self, PositionClass.Map)
     end
 
     ---@generic Class: AnyPositionClass
     ---@param self Class
     ---@return ChunkPositionClass
     function PositionClass:as_chunk_position()
-      return setmetatable(self, PositionClass.ChunkPositionClass)
+      return setmetatable(self, PositionClass.Chunk)
     end
 
     ---@generic Class: AnyPositionClass
     ---@param self Class
     ---@return PixelPositionClass
     function PositionClass:as_pixel_position()
-      return setmetatable(self, PositionClass.PixelPositionClass)
+      return setmetatable(self, PositionClass.Pixel)
     end
 
     ---@generic Class: AnyPositionClass
     ---@param self Class
     ---@return TilePositionClass
     function PositionClass:as_tile_position()
-      return setmetatable(self, PositionClass.TilePositionClass)
+      return setmetatable(self, PositionClass.Tile)
     end
 
   end
