@@ -1,6 +1,6 @@
 ---@class ChunkPositionClass: ChunkPosition
 ---@class ChunkPositionClass: PositionClass
----@field new fun(self: ChunkPositionClass, position: AnyIntPosOrVec): ChunkPositionClass
+---@field new fun(self: ChunkPositionClass, position: AnyPosOrVec): ChunkPositionClass
 ---@field construct fun(self: ChunkPositionClass, x: integer, y: integer): ChunkPositionClass
 local ChunkPositionClass = {}
 local PositionClass = require("__stdlib2__/classes/PositionClass")
@@ -34,7 +34,7 @@ do ---@block ChunkPosition
     if not PositionClass.Area then error("'Area' must be required before 'PositionClass'") end
     local ltx, lty = self.x * 32, self.y * 32
     local rbx, rby = ltx + 32, lty + 32
-    return PositionClass.Area.construct(ltx, lty, rbx, rby)
+    return PositionClass.Area:construct(ltx, lty, rbx, rby)
   end
 
   ---@return AreaClass
@@ -42,7 +42,7 @@ do ---@block ChunkPosition
     if not PositionClass.Area then error("'Area' must be required before 'PositionClass'") end
     local ltx, lty = self.x * 32, self.y * 32
     local rbx, rby = ltx + 31, lty + 31
-    return PositionClass.Area.construct(ltx, lty, rbx, rby)
+    return PositionClass.Area:construct(ltx, lty, rbx, rby)
   end
 
 end

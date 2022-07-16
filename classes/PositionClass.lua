@@ -22,10 +22,11 @@ local directions = defines.direction
 do ---@block Position
   do ---@block Constructors
 
+    ---@todo Needs overload generic support
     ---@generic Class: AnyPositionClass
     ---@param self Class
     ---@param position AnyPosOrVec
-    ---@param class Class
+    ---@param class? Class
     ---@return Class
     ---@nodiscard
     function PositionClass:new(position, class)
@@ -40,9 +41,9 @@ do ---@block Position
     ---@todo Needs overload generic support
     ---@generic Class: AnyPositionClass
     ---@param self Class
-    ---@param x number
-    ---@param y number
-    ---@param class Class
+    ---@param x double|integer
+    ---@param y double|integer
+    ---@param class? Class
     ---@return Class
     ---@nodiscard
     function PositionClass:construct(x, y, class)

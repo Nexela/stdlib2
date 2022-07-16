@@ -1,9 +1,8 @@
 {
+    "Lua.misc.parameters": [],
     "completion.requireSeparator": "/",
     "diagnostics.disable": [],
     "diagnostics.globals": [
-        "describe",
-        "it",
         "global",
         "log",
         "data",
@@ -41,10 +40,7 @@
     "diagnostics.unusedLocalExclude": [
         "_*_"
     ],
-    "Lua.misc.parameters": [
-        // "--develop=true",
-        // "--dbgport=11413"
-    ],
+    "hover.expandAlias": false,
     "runtime.path": [
         "?.lua",
         "/home/nexela/Media/Develop/Cpp/factorio/data/core/lualib/?.lua"
@@ -55,7 +51,6 @@
     "spell.dict": [],
     "type.castNumberToInteger": false,
     "type.weakUnionCheck": false,
-    "hover.expandAlias": false,
     "workspace.checkThirdParty": false,
     "workspace.ignoreDir": [
         ".vscode/",
@@ -64,6 +59,7 @@
         "config.ld"
     ],
     "workspace.library": [
+        "/home/nexela/Media/Develop/Lua/Factorio/.vscode/busted-api/",
         "/home/nexela/Media/Develop/Lua/Factorio/.vscode/factorio/",
         "/home/nexela/Media/Develop/Lua/Factorio/.vscode/factorio-data-api/",
         "/home/nexela/Media/Develop/Lua/Factorio/.vscode/annotations.lua"

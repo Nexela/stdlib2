@@ -6,10 +6,10 @@ local Area = {}
 local AreaClass = {}
 local area_meta = {}
 
+local Orientation = require("__stdlib2__/orientation")
 local Position = require("__stdlib2__/position")
 Position.Area = Area
 require("__stdlib2__/classes/PositionClass").Area = Area
-local Orientation = require("__stdlib2__/orientation")
 Area.Position = Position
 
 local as_pos_tuple_any = Position.as_tuple_any ---@diagnostic disable-line: unused-local
@@ -28,7 +28,7 @@ local concat = table.concat
 ---@return AreaClass
 ---@nodiscard
 local function new(ltx, lty, rbx, rby, ori, metatable)
-  local lt, rb = Position.construct(ltx, lty), Position.construct(rbx, rby)
+  local lt, rb = Position:construct(ltx, lty), Position:construct(rbx, rby)
   local area = setmetatable({ left_top = lt, right_bottom = rb, orientation = ori }, metatable or area_meta)
   assert(AreaClass.is_normal(area), "Area is not normalized.")
   return area
@@ -42,8 +42,8 @@ end
 ---@param metatable? table
 ---@return AreaClass
 ---@nodiscard
-local function new_safe(ltx, lty, rbx, rby, ori, metatable)
-  local lt, rb = Position.load { x = ltx, y = lty }, Position.load { x = rbx, y = rby }
+local function new_unsafe(ltx, lty, rbx, rby, ori, metatable)
+  local lt, rb = Position:load { x = ltx, y = lty }, Position:load { x = rbx, y = rby }
   local area = setmetatable({ left_top = lt, right_bottom = rb, orientation = ori }, metatable or area_meta)
   return area
 end
@@ -93,22 +93,23 @@ do ---@block Position Conversions
   ---@return MapPositionClass
   ---@nodiscard
   function AreaClass:center()
-    local width, height = AreaClass.dimensions(self)
-    return Position.construct_unsafe(width / 2, height / 2)
+    local lt = self.left_top
+    local width, height = self:dimensions()
+    return Position:construct_unsafe(lt.x + width / 2, lt.y + height / 2)
   end
 
   ---@return MapPositionClass
   ---@nodiscard
   function AreaClass:get_left_bottom()
     local lt = self.left_top
-    return Position.construct_unsafe(lt.x, lt.y + AreaClass.get_height(self))
+    return Position:construct_unsafe(lt.x, lt.y + self:get_height())
   end
 
   ---@return MapPositionClass
   ---@nodiscard
   function AreaClass:get_right_top()
     local lt = self.left_top
-    return Position.construct_unsafe(lt.x + AreaClass.get_width(self), lt.y)
+    return Position:construct_unsafe(lt.x + self:get_width(), lt.y)
   end
 
 end
@@ -259,19 +260,19 @@ do ---@block Numbers
   ---@return number
   ---@nodiscard
   function AreaClass:size()
-    return AreaClass.get_width(self) * AreaClass.get_height(self)
+    return self:get_width() * self:get_height()
   end
 
   ---@return number, number
   ---@nodiscard
   function AreaClass:dimensions()
-    return AreaClass.get_width(self), AreaClass.get_height(self)
+    return self:get_width(), self:get_height()
   end
 
   ---@return number
   ---@nodiscard
   function AreaClass:perimeter()
-    return 2 * AreaClass.get_width(self) + 2 * AreaClass.get_height(self)
+    return 2 * self:get_width() + 2 * self:get_height()
   end
 
 end
@@ -291,7 +292,7 @@ do ---@block Booleans
   ---@return boolean
   ---@nodiscard
   function AreaClass:inside(other)
-    local ltx, rbx, lty, rby = AreaClass.unpack(self)
+    local ltx, rbx, lty, rby = self:unpack()
     local oltx, orbx, olty, orby = as_tuple(other)
     return ltx >= oltx and rbx <= orbx and lty >= olty and rby <= orby
   end
@@ -307,13 +308,13 @@ do ---@block Booleans
   ---@return boolean
   ---@nodiscard
   function AreaClass:is_zero()
-    return AreaClass.size(self) == 0
+    return self:size() == 0
   end
 
   ---@return boolean
   ---@nodiscard
   function AreaClass:is_square()
-    return AreaClass.get_width(self) == AreaClass.get_height(self)
+    return self:get_width() == self:get_height()
   end
 
   ---@return boolean
@@ -437,7 +438,7 @@ end
 do ---@block Metamethods
 
   ---@param self AreaClass
-  area_meta.__call = function(self) return AreaClass.copy(self) end
+  area_meta.__call = function(self) return self:copy() end
 
   ---@param self AreaClass
   area_meta.__index = function(self, key)
@@ -470,13 +471,13 @@ end
 -- ============================================================================
 do ---@block AreaClass Constructors
 
-  ---@param area AnyArea
+  ---@param area? AnyArea
   ---@return AreaClass
   ---@nodiscard
-  function Area.new(area)
-    if not area then return Area.zero() end
-    local lt = Position.new(area.left_top or area[1])
-    local rb = Position.new(area.right_bottom or area[2])
+  function Area:new(area)
+    if not area then return self:zero() end
+    local lt = Position:new(area.left_top or area[1])
+    local rb = Position:new(area.right_bottom or area[2])
     local o = area.orientation or area[3]
     return setmetatable({ left_top = lt, right_bottom = rb, orientation = o }, area_meta)
   end
@@ -488,21 +489,21 @@ do ---@block AreaClass Constructors
   ---@param ori? float
   ---@return AreaClass
   ---@nodiscard
-  function Area.construct(ltx, lty, rbx, rby, ori)
+  function Area:construct(ltx, lty, rbx, rby, ori)
     return new(ltx, lty, rbx, rby, ori)
   end
 
   ---@param arr AreaArray
   ---@return AreaClass
   ---@nodiscard
-  function Area.from_array(arr)
+  function Area:from_array(arr)
     return new(arr[1], arr[2], arr[3], arr[4], arr[5])
   end
 
   ---@param vecbox VectorBox
   ---@return AreaClass
   ---@nodiscard
-  function Area.from_vector_box(vecbox)
+  function Area:from_vector_box(vecbox)
     return new(vecbox[1][1], vecbox[1][2], vecbox[2][1], vecbox[2][2], vecbox[3])
   end
 
@@ -510,7 +511,7 @@ do ---@block AreaClass Constructors
   ---@param right_bottom AnyPosOrVec
   ---@return AreaClass
   ---@nodiscard
-  function Area.from_positions(left_top, right_bottom)
+  function Area:from_positions(left_top, right_bottom)
     local ltx, lty = as_pos_tuple(left_top)
     local rbx, rby = as_pos_tuple(right_bottom)
     return new(ltx, lty, rbx, rby)
@@ -520,7 +521,7 @@ do ---@block AreaClass Constructors
   ---@param vector? AnyPosOrVec|number
   ---@return AreaClass
   ---@nodiscard
-  function Area.from_position(position, vector)
+  function Area:from_position(position, vector)
     local x, y = as_pos_tuple(position)
     local vecx, vecy = 0, 0
     if vector then vecx, vecy = as_pos_tuple_any(vector) end
@@ -532,7 +533,7 @@ do ---@block AreaClass Constructors
   ---@param vector? AnyPosOrVec|number
   ---@return AreaClass
   ---@nodiscard
-  function Area.from_left_top(left_top, vector)
+  function Area:from_left_top(left_top, vector)
     local x, y = as_pos_tuple(left_top)
     local vecx, vecy = 0, 0
     if vector then vecx, vecy = as_pos_tuple_any(vector) end
@@ -541,48 +542,48 @@ do ---@block AreaClass Constructors
 
   ---@return AreaClass
   ---@nodiscard
-  function Area.from_string()
+  function Area:from_string()
     error("Not implemented")
   end
 
   ---@return AreaClass
   ---@nodiscard
-  function Area.zero()
-    return new_safe(0, 0, 0, 0)
+  function Area:zero()
+    return new_unsafe(0, 0, 0, 0)
   end
 
   ---@return AreaClass
   ---@nodiscard
-  function Area.one()
-    return new_safe(0, 0, 1, 1)
+  function Area:one()
+    return new_unsafe(0, 0, 1, 1)
   end
 
   ---@return AreaClass
   ---@nodiscard
-  function Area.two()
-    return new_safe(-1, -1, 1, 1)
+  function Area:two()
+    return new_unsafe(-1, -1, 1, 1)
   end
 
   ---@param left_top MapPositionClass
   ---@param right_bottom MapPositionClass
   ---@return AreaClass
   ---@nodiscard
-  function Area.load_from_positions(left_top, right_bottom)
+  function Area:load_from_positions(left_top, right_bottom)
     return setmetatable({ left_top = left_top, right_bottom = right_bottom }, area_meta)
   end
 
   ---@param area AnyArea
   ---@return AreaClass
-  function Area.load(area)
-    Position.load(area.left_top)
-    Position.load(area.right_bottom)
+  function Area:load(area)
+    Position:load(area.left_top)
+    Position:load(area.right_bottom)
     return setmetatable(area, area_meta) --[[@as AreaClass]]
   end
 
   ---@param area AnyArea
   ---@return AreaClass
-  local function __call(_, area)
-    return Area.load(area)
+  local function __call(self, area)
+    return self:load(area)
   end
 
   setmetatable(Area, { __call = __call })

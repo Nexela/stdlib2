@@ -248,8 +248,8 @@ end
 --- Creates a version set.
 ---
 --- A `set` is an object that contains a number of allowed and disallowed version `range` objects.
---- @param v1 string|Version
---- @param v2 string|Version
+--- @param v1? string|Version
+--- @param v2? string|Version
 --- @overload fun(v1: Version.range):Version.set
 --- @return Version.set
 function Version.set(v1, v2)

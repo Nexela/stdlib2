@@ -41,10 +41,10 @@ do ---@block Position Constructors
   ---@return Class
   ---@nodiscard
   ---@overload fun(position?: AnyPosOrVec): MapPositionClass
-  Position.new = function(position, class)
-    if not position then return Position.zero(class) end
+  function Position:new(position, class)
+    if not position then return self:zero(class) end
     assert(type(position) == "table", "Position.new: position must be a MapPosition")
-    if class == Position.Chunk or class == Position.Tile then
+    if class == self.Chunk or class == self.Tile then
       assert(math_floor(position.x) == position.x and math_floor(position.y) == position.y, "PositionClass.construct: x and y must be integers")
     end
     return new(position.x or position[1], position.y or position[2], class)
@@ -56,8 +56,8 @@ do ---@block Position Constructors
   ---@return Class
   ---@nodiscard
   ---@overload fun(position?: AnyPosOrVec): MapPositionClass
-  Position.new_unsafe = function(position, class)
-    if not position then return Position.zero(class) end
+  function Position:new_unsafe(position, class)
+    if not position then return self:zero(class) end
     return new(position.x or position[1], position.y or position[2], class)
   end
 
@@ -68,9 +68,9 @@ do ---@block Position Constructors
   ---@return Class
   ---@nodiscard
   ---@overload fun(x: double, y: double): MapPositionClass
-  Position.construct = function(x, y, class)
+  function Position:construct(x, y, class)
     assert(x and y, "PositionClass.construct: x and y must be numbers")
-    if class == Position.Chunk or class == Position.Tile then
+    if class == self.Chunk or class == self.Tile then
       assert(math_floor(x) == x and math_floor(y) == y, "PositionClass.construct: x and y must be integers")
     end
     return new(x, y, class)
@@ -83,7 +83,7 @@ do ---@block Position Constructors
   ---@return Class
   ---@nodiscard
   ---@overload fun(x: double, y: double): MapPositionClass
-  Position.construct_unsafe = function(x, y, class)
+  function Position:construct_unsafe(x, y, class)
     return new(x, y, class)
   end
 
@@ -92,7 +92,7 @@ do ---@block Position Constructors
   ---@return Class
   ---@nodiscard
   ---@overload fun(): MapPositionClass
-  Position.zero = function(class)
+  function Position:zero(class)
     return new(0, 0, class)
   end
 
@@ -105,8 +105,8 @@ do ---@block Position Constructors
   ---@overload fun(position: ChunkPositionClass): ChunkPositionClass
   ---@overload fun(position: TilePositionClass): TilePositionClass
   ---@overload fun(position: PixelPositionClass): PixelPositionClass
-  Position.copy = function(position, class)
-    class = class and class or Position[position.__class]
+  function Position:copy(position, class)
+    class = class and class or self[position.__class]
     assert(class, "Position.copy: position must be a MapPosition, ChunkPosition, TilePosition, or PixelPosition")
     return new(position.x, position.y, class)
   end
@@ -116,8 +116,8 @@ do ---@block Position Constructors
   ---@param class Class
   ---@return Class
   ---@overload fun(position: AnyPosition): MapPositionClass
-  Position.load = function(position, class)
-    class = class or Position.Map
+  function Position:load(position, class)
+    class = class or self.Map
     return setmetatable(position, class)
   end
 
@@ -126,8 +126,8 @@ do ---@block Position Constructors
   ---@param class Class
   ---@return Class
   ---@overload fun(self: Position, position: AnyPosition): MapPositionClass
-  local __call = function(_, position, class)
-    return Position.load(position, class)
+  local __call = function(self, position, class)
+    return self:load(position, class)
   end
 
   setmetatable(Position, { __call = __call })

@@ -1,7 +1,7 @@
 ---@class MapPositionClass: MapPosition
 ---@class MapPositionClass: PositionClass
----@field new fun(self: MapPositionClass, position: AnyPosOrVec): MapPositionClass
----@field construct fun(self: MapPositionClass, x: double, y: double): MapPositionClass
+---@field new fun(self: MapPositionClass, position: AnyPosOrVec, class?: AnyPositionClass): MapPositionClass
+---@field construct fun(self: MapPositionClass, x: double, y: double, class?: AnyPositionClass): MapPositionClass
 local MapPositionClass = {}
 local PositionClass = require("__stdlib2__/classes/PositionClass")
 
@@ -43,7 +43,7 @@ do ---@block MapPosition
   ---@return AreaClass
   function MapPositionClass:to_area(vector)
     if not PositionClass.Area then error("'Area' must be required before 'PositionClass'") end
-    return PositionClass.Area.from_position(self, vector)
+    return PositionClass.Area:from_position(self, vector)
   end
 
   ---Expands from the position outwards towards the vector
@@ -51,7 +51,7 @@ do ---@block MapPosition
   ---@return AreaClass
   function MapPositionClass:to_area_left_top(vector)
     if not PositionClass.Area then error("'Area' must be required before 'PositionClass'") end
-    return PositionClass.Area.from_left_top(self, vector)
+    return PositionClass.Area:from_left_top(self, vector)
   end
 
   --- Turn a position into a chunks area
@@ -61,7 +61,7 @@ do ---@block MapPosition
     local ltx, lty = self.x, self.y
     ltx, lty = ltx - ltx % 32, lty - lty % 32
     local rbx, rby = ltx + 32, lty + 32
-    return PositionClass.Area.construct(ltx, lty, rbx, rby)
+    return PositionClass.Area:construct(ltx, lty, rbx, rby)
   end
 
   ---@return AreaClass
@@ -70,7 +70,7 @@ do ---@block MapPosition
     local ltx, lty = self.x, self.y
     ltx, lty = ltx - ltx % 32, lty - lty % 32
     local rbx, rby = ltx + 31, lty + 31
-    return PositionClass.Area.construct(ltx, lty, rbx, rby)
+    return PositionClass.Area:construct(ltx, lty, rbx, rby)
   end
 
 end

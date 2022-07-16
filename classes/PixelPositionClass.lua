@@ -1,7 +1,11 @@
 ---@class PixelPositionClass: PixelPosition
 ---@class PixelPositionClass: PositionClass
+---@field new fun(self: PixelPositionClass, position: AnyPosOrVec): PixelPositionClass
+---@field construct fun(self: PixelPositionClass, x: integer, y: integer): PixelPositionClass
 local PixelPositionClass = {}
 local PositionClass = require("__stdlib2__/classes/PositionClass")
+
+local math_floor = math.floor
 
 -- ============================================================================
 do ---@block PixelPosition
@@ -16,14 +20,14 @@ do ---@block PixelPosition
   ---@return ChunkPositionClass
   function PixelPositionClass:to_chunk_position()
     local chunk_pos = PositionClass.copy_as(self, PositionClass.Chunk)
-    chunk_pos.x, chunk_pos.y = chunk_pos.x / 32 / 32, chunk_pos.y / 32 / 32
+    chunk_pos.x, chunk_pos.y = math_floor(chunk_pos.x / 32 / 32), math_floor(chunk_pos.y / 32 / 32)
     return chunk_pos
   end
 
   ---@return TilePositionClass
   function PixelPositionClass:to_tile_position()
     local tile_pos = PositionClass.copy_as(self, PositionClass.Tile)
-    tile_pos.x, tile_pos.y = tile_pos.x / 32, tile_pos.y / 32
+    tile_pos.x, tile_pos.y = math_floor(tile_pos.x / 32), math_floor(tile_pos.y / 32)
     return tile_pos
   end
 
