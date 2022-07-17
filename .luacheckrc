@@ -8,6 +8,7 @@ max_line_length = 160
 max_code_line_length = 160
 max_string_line_length = 160
 max_comment_line_length = false
+ignore = {"212/self"}
 
 ---@diagnostic disable-next-line: undefined-global
 stds.factorio = {
@@ -22,10 +23,11 @@ stds.factorio = {
     __Profiler = { other_fields = true, read_only = false },
   },
   globals = {
-    "__POSITION_CLASS_DEBUG__"
-  }
+    "__POSITION_DEBUG__"
+  },
 }
 
 exclude_files = {
-  "**/.temp/*"
+  "**/.temp/*",
+  "**/spec/*"
 }

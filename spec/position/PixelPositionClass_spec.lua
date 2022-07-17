@@ -1,0 +1,23 @@
+require("spec.runner")()
+local P = require("__stdlib2__/area").Position ---@diagnostic disable-line: unused-local
+
+describe("PixelPositionClass", function()
+
+describe("Class	table: 0x5569fa051f30", function() end)
+describe("__add", function() end)
+describe("__call", function() end)
+describe("__class	PixelPosition", function() end)
+describe("__concat", function() end)
+describe("__div", function() end)
+describe("__eq", function() end)
+describe("__index", function() end)
+describe("__mod", function() end)
+describe("__mul", function() end)
+describe("__newindex", function() end)
+describe("__sub", function() end)
+describe("__tostring", function() end)
+describe("__unm", function() end)
+describe("to_chunk_position", function() end)
+describe("to_map_position", function() end)
+describe("to_tile_position", function() end)
+end)

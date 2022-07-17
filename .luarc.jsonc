@@ -59,9 +59,8 @@
         "config.ld"
     ],
     "workspace.library": [
-        "/home/nexela/Media/Develop/Lua/Factorio/.vscode/busted-api/",
         "/home/nexela/Media/Develop/Lua/Factorio/.vscode/factorio/",
-        "/home/nexela/Media/Develop/Lua/Factorio/.vscode/factorio-data-api/",
+        "/home/nexela/Media/Develop/Lua/Factorio/.vscode/annotations/",
         "/home/nexela/Media/Develop/Lua/Factorio/.vscode/annotations.lua"
     ]
 }

@@ -324,7 +324,7 @@ function create_list(list, in_place)
     for index, value in ipairs(new_list) do dictionary[value] = index end
 
     --- Create the __index inside create_list for upvalue access to __dictionary
-    --- Pros: quick access to dictionary with self.__dictionary vs getmetable(self).__dictionary
+    --- Pros: quick access to dictionary with self.__dictionary vs getmetatable(self).__dictionary
     --- Cons: dictionary has public accessibilty
     local __index = function(_, key)
         return key == '__dictionary' and dictionary -- return the dictionary
