@@ -3,7 +3,7 @@ local P = require("__stdlib2__/area").Position ---@diagnostic disable-line: unus
 
 describe("MapPositionClass", function()
 
-  describe("Class	table: 0x561df64abdb0:", function() end)
+  describe("Class	table: :", function() end)
   describe("__add:", function() end)
   describe("__call:", function() end)
   describe("__class	MapPosition:", function() end)

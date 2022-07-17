@@ -9,7 +9,7 @@ describe("Version", function()
     assert.equals(V.patch, 4)
   end)
 
-  it("Errors on malfomed version", function()
+  it("Errors on malformed version", function()
     assert.errors(function() Version("3.4") end)
     assert.errors(function() Version(3.4) end)
     assert.Not.errors(function() Version("2.3.1") end)

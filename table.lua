@@ -10,7 +10,7 @@ local table = {}
 ---@alias array {[integer]: any}
 
 -- Import lua table functions
-for name, func in pairs(_ENV.table) do table[name] = func end
+for name, f in pairs(_ENV.table) do table[name] = f end
 
 ---Shallow copy an array's values into a new array.
 ---
@@ -201,6 +201,7 @@ end
 ---```
 ---@generic k, v
 ---@param tbl table The table to iterate over.
+---@diagnostic disable-next-line: codestyle-check
 ---@param from_k k The key to start iteration at, or `nil` to start at the beginning of `tbl`. If the key does not exist in `tbl`, it will be treated as `nil`, _unless_ a custom `_next` function is used.
 ---@param n number The number of items to iterate.
 ---@param callback fun(v: v, k: k, ...):any, boolean, boolean Receives `value`, `key`, `...` as parameters.

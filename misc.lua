@@ -4,7 +4,7 @@ local Misc = {}
 --- @param tick? number|string default: `game.tick`
 --- @param include_leading_zeroes? boolean If true, leading zeroes will be included in single-digit minute and hour values.
 --- @return string
-function Misc.ticks_to_timestring(tick, include_leading_zeroes)
+function Misc.ticks_to_time_string(tick, include_leading_zeroes)
   tick = tick and tonumber(tick) or game.ticks_played
   local total_seconds = math.floor(tick / 60)
   local seconds = total_seconds % 60
@@ -47,6 +47,7 @@ end
 --- @param suppress_all boolean suppress all errors, not just file_not_found
 --- @return any
 function Misc.prequire(module, suppress_all)
+  ---@type boolean, any|string
   local ok, err = pcall(require, module)
   if ok then
     return err
@@ -61,10 +62,10 @@ end
 function Misc.rawtostring(any)
   local m = getmetatable(any)
   if m then
-    local f = m.__tostring
+    local __tostring = m.__tostring --[[@as any]]
     m.__tostring = nil
     local s = tostring(any)
-    m.__tostring = f
+    m.__tostring = __tostring
     return s
   else
     return tostring(any)

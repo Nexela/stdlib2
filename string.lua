@@ -249,13 +249,13 @@ function string.split(s, sep, pattern, func)
   local start_idx, end_idx = s:find(sep)
   local last_find = 1
   while start_idx do
-    local substr = s:sub(last_find, start_idx - 1)
-    if substr:len() > 0 then table.insert(fields, func(s:sub(last_find, start_idx - 1))) end
+    local sub_str = s:sub(last_find, start_idx - 1)
+    if sub_str:len() > 0 then table.insert(fields, func(s:sub(last_find, start_idx - 1))) end
     last_find = end_idx + 1
     start_idx, end_idx = s:find(sep, end_idx + 1)
   end
-  local substr = s:sub(last_find)
-  if substr:len() > 0 then insert(fields, func(s:sub(last_find))) end
+  local sub_str = s:sub(last_find)
+  if sub_str:len() > 0 then insert(fields, func(s:sub(last_find))) end
   return fields
 end
 

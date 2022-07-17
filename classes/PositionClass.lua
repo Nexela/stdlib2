@@ -44,7 +44,7 @@ do ---@block Position
       assert(class, "Missing class")
       local x, y = position.x or position[1], position.y or position[2]
       if class == PositionClass.ChunkPosition or class == PositionClass.TilePosition then
-        assert(math_floor(x) == x and math_floor(y) == y, ERROR.params_must_be_ints)
+        assert(math_floor(x) == x and math_floor(y) == y, ERROR.params_must_be_int)
       end
       return setmetatable({ x = x, y = y }, class)
     end
@@ -70,9 +70,9 @@ do ---@block Position
       assert(x and y, "PositionClass.construct: x and y must be numbers")
       assert(class, "Missing class")
       if class == PositionClass.ChunkPosition or class == PositionClass.TilePosition then
-        assert(math_floor(x) == x and math_floor(y) == y, ERROR.params_must_be_ints)
+        assert(math_floor(x) == x and math_floor(y) == y, ERROR.params_must_be_int)
       end
-      return setmetatable({ x = x, y = y }, class )
+      return setmetatable({ x = x, y = y }, class)
     end
 
     ---@todo Needs overload generic support
@@ -227,7 +227,7 @@ do ---@block Position
     ---@generic Class: AnyPositionClass
     ---@param self Class
     ---@return Class
-    function PositionClass:flipx()
+    function PositionClass:flip_x()
       self.x = -self.x
       return self
     end
@@ -235,7 +235,7 @@ do ---@block Position
     ---@generic Class: AnyPositionClass
     ---@param self Class
     ---@return Class
-    function PositionClass:flipy()
+    function PositionClass:flip_y()
       self.y = -self.y
       return self
     end

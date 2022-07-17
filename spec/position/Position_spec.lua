@@ -57,14 +57,13 @@ describe("Position", function()
 
   describe("as_tuple", function()
     it("returns a tuple from a vector", function()
-      assert.returned_arguments(2, P.as_tuple{1, 2}--[[@as function]])
+      assert.returned_arguments(2, P.as_tuple { 1, 2 }--[[@as function]] )
     end)
 
     it("returns a tuple from a table", function()
-      assert.returned_arguments(2, P.as_tuple{x = 1, y = 2}--[[@as function]])
+      assert.returned_arguments(2, P.as_tuple { x = 1, y = 2 }--[[@as function]] )
       -- assert(assert.all_of(P.as_tuple{1,3}))
     end)
-
   end)
 
   describe("as_tuple_any", function() end)

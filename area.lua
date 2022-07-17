@@ -71,6 +71,7 @@ local function as_tuple_any(self)
   local typeof = type(self)
   if typeof == "number" then return self, self, self, self
   elseif typeof == "table" then
+    ---@type MapPosition, MapPosition
     local lt, rb = self.left_top or self[1], self.right_bottom or self[2]
     return lt.x or lt[1], lt.y or lt[2], rb.x or rb[1], rb.y or rb[2], self.orientation or self[3]
   else error("Invalid type for area: " .. typeof) end
@@ -82,7 +83,7 @@ do ---@block Area Constructors
   ---@return AreaClass
   ---@nodiscard
   function AreaClass:copy()
-    local lt, rb = self.left_top:copy(), self.right_bottom:copy()
+    local lt, rb = self.left_top:copy_as(Position.MapPosition), self.right_bottom:copy_as(Position.MapPosition)
     return setmetatable({ left_top = lt, right_bottom = rb, orientation = rawget(self, "ori") }, getmetatable(self))
   end
 
@@ -293,8 +294,8 @@ do ---@block Booleans
   ---@nodiscard
   function AreaClass:inside(other)
     local ltx, rbx, lty, rby = self:unpack()
-    local oltx, orbx, olty, orby = as_tuple(other)
-    return ltx >= oltx and rbx <= orbx and lty >= olty and rby <= orby
+    local o_ltx, o_rbx, o_lty, o_rby = as_tuple(other)
+    return ltx >= o_ltx and rbx <= o_rbx and lty >= o_lty and rby <= o_rby
   end
 
   ---@return boolean
@@ -523,10 +524,10 @@ do ---@block AreaClass Constructors
   ---@nodiscard
   function Area:from_position(position, vector)
     local x, y = as_pos_tuple(position)
-    local vecx, vecy = 0, 0
-    if vector then vecx, vecy = as_pos_tuple_any(vector) end
-    vecx, vecy = abs(vecx / 2), abs(vecy / 2)
-    return new(x - vecx, y - vecy, x + vecx, y + vecy)
+    local vec_x, vec_y = 0, 0
+    if vector then vec_x, vec_y = as_pos_tuple_any(vector) end
+    vec_x, vec_y = abs(vec_x / 2), abs(vec_y / 2)
+    return new(x - vec_x, y - vec_y, x + vec_x, y + vec_y)
   end
 
   ---@param left_top AnyPosOrVec
@@ -535,9 +536,9 @@ do ---@block AreaClass Constructors
   ---@nodiscard
   function Area:from_left_top(left_top, vector)
     local x, y = as_pos_tuple(left_top)
-    local vecx, vecy = 0, 0
-    if vector then vecx, vecy = as_pos_tuple_any(vector) end
-    return new(x, y, x + vecx, y + vecy)
+    local vec_x, vec_y = 0, 0
+    if vector then vec_x, vec_y = as_pos_tuple_any(vector) end
+    return new(x, y, x + vec_x, y + vec_y)
   end
 
   ---@return AreaClass

@@ -84,9 +84,9 @@ do ---@block Metamethods
     return MapPositionClass[key] or PositionClass[key] or (key == 1 and self.x) or (key == 2 and self.y) or nil
   end
 
-  for key, func in pairs(PositionClass) do
+  for key, f in pairs(PositionClass) --[[@as fun():string, function]]do
     if key:find("^__") and not MapPositionClass[key] then
-      MapPositionClass[key] = func
+      MapPositionClass[key] = f ---@diagnostic disable-line: no-unknown
     end
   end
 
