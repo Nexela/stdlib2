@@ -12,8 +12,6 @@ Position.Area = Area
 require("__stdlib2__/classes/PositionClass").Area = Area
 Area.Position = Position
 
-local as_pos_tuple_any = Position.as_tuple_any ---@diagnostic disable-line: unused-local
-local as_pos_tuple = Position.as_tuple
 local setmetatable = setmetatable
 local abs = math.abs
 local concat = table.concat
@@ -285,7 +283,7 @@ do ---@block Booleans
   ---@nodiscard
   function AreaClass:contains(position)
     local lt, rb = self.left_top, self.right_bottom
-    local x, y = as_pos_tuple(position)
+    local x, y = Position:as_tuple(position)
     return x >= lt.x and x <= rb.x and y >= lt.y and y <= rb.y
   end
 
@@ -513,8 +511,8 @@ do ---@block Area Constructors
   ---@return AreaClass
   ---@nodiscard
   function Area:from_positions(left_top, right_bottom)
-    local ltx, lty = as_pos_tuple(left_top)
-    local rbx, rby = as_pos_tuple(right_bottom)
+    local ltx, lty = Position:as_tuple(left_top)
+    local rbx, rby = Position:as_tuple(right_bottom)
     return new(ltx, lty, rbx, rby)
   end
 
@@ -523,9 +521,9 @@ do ---@block Area Constructors
   ---@return AreaClass
   ---@nodiscard
   function Area:from_position(position, vector)
-    local x, y = as_pos_tuple(position)
+    local x, y = Position:as_tuple(position)
     local vec_x, vec_y = 0, 0
-    if vector then vec_x, vec_y = as_pos_tuple_any(vector) end
+    if vector then vec_x, vec_y = Position:as_tuple_any(vector) end
     vec_x, vec_y = abs(vec_x / 2), abs(vec_y / 2)
     return new(x - vec_x, y - vec_y, x + vec_x, y + vec_y)
   end
@@ -535,9 +533,9 @@ do ---@block Area Constructors
   ---@return AreaClass
   ---@nodiscard
   function Area:from_left_top(left_top, vector)
-    local x, y = as_pos_tuple(left_top)
+    local x, y = Position:as_tuple(left_top)
     local vec_x, vec_y = 0, 0
-    if vector then vec_x, vec_y = as_pos_tuple_any(vector) end
+    if vector then vec_x, vec_y = Position:as_tuple_any(vector) end
     return new(x, y, x + vec_x, y + vec_y)
   end
 

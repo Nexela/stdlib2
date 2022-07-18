@@ -1,5 +1,6 @@
 {
     "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+    "Lua.misc.parameters": [],
     "completion.autoRequire": false,
     "completion.displayContext": 0,
     "completion.enable": true,
@@ -10,7 +11,6 @@
         "log",
         "data",
         "mods",
-        // "serpent",
         "table_size",
         "util",
         "localised_print",
@@ -101,7 +101,6 @@
     "hint.semicolon": "Disable",
     "hint.setType": true,
     "hover.expandAlias": false,
-    "Lua.misc.parameters": [],
     "runtime.path": [
         "?.lua",
         "/home/nexela/Media/Develop/Cpp/factorio/data/core/lualib/?.lua"
@@ -133,7 +132,8 @@
         "rawtostring",
         "metamethods",
         "uint",
-        "midrange"
+        "midrange",
+        "luassert"
     ],
     "telemetry.enable": true,
     "type.castNumberToInteger": false,

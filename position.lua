@@ -2,7 +2,10 @@
 local Position = {}
 __POSITION_DEBUG__ = __POSITION_DEBUG__ or nil
 
+local ERROR = require("__stdlib2__/config").error
 local PositionClass = require("__stdlib2__/classes/PositionClass")
+
+PositionClass.Position = Position
 PositionClass.MapPosition = require("__stdlib2__/classes/MapPositionClass")
 PositionClass.ChunkPosition = require("__stdlib2__/classes/ChunkPositionClass")
 PositionClass.TilePosition = require("__stdlib2__/classes/TilePositionClass")
@@ -12,8 +15,14 @@ Position.MapPosition = PositionClass.MapPosition
 Position.ChunkPosition = PositionClass.ChunkPosition
 Position.TilePosition = PositionClass.TilePosition
 Position.PixelPosition = PositionClass.PixelPosition
+Position[PositionClass.MapPosition] = PositionClass.MapPosition
+Position[PositionClass.ChunkPosition] = PositionClass.ChunkPosition
+Position[PositionClass.TilePosition] = PositionClass.TilePosition
+Position[PositionClass.PixelPosition] = PositionClass.PixelPosition
 
 local math_floor = math.floor
+local assert = assert
+local type = type
 
 -- ============================================================================
 
@@ -32,8 +41,22 @@ end
 -- ============================================================================
 do ---@block Position Constructors
 
-  Position.as_tuple = PositionClass.as_tuple
-  Position.as_tuple_any = PositionClass.as_tuple_any
+  ---@generic num: double|integer|float
+  ---@param pos AnyPosOrVec|number
+  ---@return num, num
+  ---@nodiscard
+  function Position:as_tuple_any(pos)
+    if type(pos) == "number" then return pos, pos end
+    return pos.x or pos[1], pos.y or pos[2]
+  end
+
+  ---@generic num: double|integer|float
+  ---@param pos AnyPosOrVec
+  ---@return num, num
+  ---@nodiscard
+  function Position:as_tuple(pos)
+    return pos.x or pos[1], pos.y or pos[2]
+  end
 
   ---@generic Class: AnyPositionClass
   ---@param position? AnyPosOrVec
@@ -42,12 +65,17 @@ do ---@block Position Constructors
   ---@nodiscard
   ---@overload fun(position?: AnyPosOrVec): MapPositionClass
   function Position:new(position, class)
+    assert(self == Position, ERROR.called_without_self)
     if not position then return self:zero(class) end
-    assert(type(position) == "table", "Position.new: position must be a MapPosition")
+    assert(type(position) == "table" and (position.x or position[1]) and (position.y or position[2]), ERROR.not_position_table)
+    local x, y = position.x or position[1], position.y or position[2]
     if class == self.ChunkPosition or class == self.TilePosition then
-      assert(math_floor(position.x) == position.x and math_floor(position.y) == position.y, "PositionClass.construct: x and y must be integers")
+      assert(math_floor(x) == x and math_floor(y) == y, ERROR.invalid_values_integers)
+    else
+      if class then assert(Position[class], ERROR.not_position_class) end
+      assert(type(x) == "number" and type(y) == "number", ERROR.invalid_values_numbers)
     end
-    return new(position.x or position[1], position.y or position[2], class)
+    return new(x, y, class)
   end
 
   ---@generic Class: AnyPositionClass
@@ -69,9 +97,11 @@ do ---@block Position Constructors
   ---@nodiscard
   ---@overload fun(x: double, y: double): MapPositionClass
   function Position:construct(x, y, class)
-    assert(x and y, "PositionClass.construct: x and y must be numbers")
     if class == self.ChunkPosition or class == self.TilePosition then
-      assert(math_floor(x) == x and math_floor(y) == y, "PositionClass.construct: x and y must be integers")
+      assert(math_floor(x) == x and math_floor(y) == y, ERROR.not_integers)
+    else
+      if class then assert(Position[class], ERROR.not_position_class) end
+      assert(type(x) == "number" and type(y) == "number", ERROR.not_numbers)
     end
     return new(x, y, class)
   end
@@ -106,8 +136,7 @@ do ---@block Position Constructors
   ---@overload fun(position: TilePositionClass): TilePositionClass
   ---@overload fun(position: PixelPositionClass): PixelPositionClass
   function Position:copy(position, class)
-    class = class and class or self[position.__class]
-    assert(class, "Position.copy: position must be a MapPosition, ChunkPosition, TilePosition, or PixelPosition")
+    class = class and assert(Position[class], ERROR.not_position_class) or assert(Position[position.Class], ERROR.not_position_class)
     return new(position.x, position.y, class)
   end
 
@@ -126,8 +155,8 @@ do ---@block Position Constructors
   ---@param class Class
   ---@return Class
   ---@overload fun(self: Position, position: AnyPosition): MapPositionClass
-  local __call = function(self, position, class)
-    return self:load(position, class)
+  local __call = function(_, position, class)
+    return setmetatable(position, class or Position.MapPosition)
   end
 
   setmetatable(Position, { __call = __call })

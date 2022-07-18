@@ -1,9 +1,8 @@
 ---@class ChunkPositionClass: PositionClass, ChunkPosition.0
----@field new fun(self: ChunkPositionClass, position: AnyPosOrVec): ChunkPositionClass
----@field construct fun(self: ChunkPositionClass, x: integer, y: integer): ChunkPositionClass
 local ChunkPositionClass = {}
 ChunkPositionClass.Class = ChunkPositionClass
 ChunkPositionClass.__class = "ChunkPosition"
+
 local PositionClass = require("__stdlib2__/classes/PositionClass")
 local ERROR = require("__stdlib2__/config").error
 

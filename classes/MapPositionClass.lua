@@ -1,9 +1,8 @@
 ---@class MapPositionClass: PositionClass, MapPosition.0
----@field new fun(self: MapPositionClass, position: AnyPosOrVec): MapPositionClass
----@field construct fun(self: MapPositionClass, x: double, y: double): MapPositionClass
 local MapPositionClass = {}
 MapPositionClass.Class = MapPositionClass
 MapPositionClass.__class = "MapPosition"
+
 local PositionClass = require("__stdlib2__/classes/PositionClass")
 local ERROR = require("__stdlib2__/config").error
 

@@ -1,9 +1,8 @@
 ---@class TilePositionClass: PositionClass, TilePosition.0
----@field new fun(self: TilePositionClass, position: AnyPosOrVec): TilePositionClass
----@field construct fun(self: TilePositionClass, x: integer, y: integer): TilePositionClass
 local TilePositionClass = {}
 TilePositionClass.Class = TilePositionClass
 TilePositionClass.__class = "TilePosition"
+
 local PositionClass = require("__stdlib2__/classes/PositionClass")
 
 -- ============================================================================

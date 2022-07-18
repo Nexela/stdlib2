@@ -1,9 +1,8 @@
 ---@class PixelPositionClass: PositionClass, PixelPosition.0
----@field new fun(self: PixelPositionClass, position: AnyPosOrVec): PixelPositionClass
----@field construct fun(self: PixelPositionClass, x: integer, y: integer): PixelPositionClass
 local PixelPositionClass = {}
 PixelPositionClass.Class = PixelPositionClass
 PixelPositionClass.__class = "PixelPosition"
+
 local PositionClass = require("__stdlib2__/classes/PositionClass")
 
 local math_floor = math.floor
