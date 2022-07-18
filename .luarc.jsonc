@@ -62,7 +62,7 @@
         "need-check-nil": "Any",
         "newfield-call": "Any",
         "newline-call": "Any",
-        "no-unknown": "Opened!",
+        "no-unknown": "None!",
         "not-yieldable": "Any",
         "param-type-mismatch": "Any",
         "redefined-local": "Any",
