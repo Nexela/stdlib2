@@ -29,7 +29,7 @@ local as_dictionary = function(list)
   if typeof == "nil" then return {} end
   if typeof == "string" or typeof == "number" then return { [list] = true } end
   if typeof == "table" then
-    if list.__dictionary then return list.__dictionary end
+    if list.__dictionary then return list.__dictionary --[[@as dictionary]] end
     if #list == table_size(list) then
       local dictionary = {}
       for _, value in pairs(list) do if not dictionary[value] then dictionary[value] = true end end
@@ -318,8 +318,8 @@ end
 function create_list(list, in_place)
   local dictionary = {}
   local new_list = create_list_internal(list, dictionary, in_place)
-  ---@cast new_list -?
-  if new_list.__class == "unique_list" then return new_list end
+  ---@cast new_list -nil
+  if new_list.__class == "unique_list" then return new_list --[[@as unique_list]] end
 
   for index, value in ipairs(new_list) do dictionary[value] = index end
 
@@ -345,7 +345,7 @@ function create_list(list, in_place)
     __tostring = __tostring
   }
 
-  return setmetatable(new_list, mt)
+  return setmetatable(new_list--[[@as unique_list]] , mt)
 end
 
 return create_list
