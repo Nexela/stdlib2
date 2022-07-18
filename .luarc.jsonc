@@ -1,6 +1,8 @@
 {
     "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
-    "Lua.misc.parameters": [],
+    "completion.autoRequire": false,
+    "completion.displayContext": 0,
+    "completion.enable": true,
     "completion.requireSeparator": "/",
     "diagnostics.disable": [],
     "diagnostics.globals": [
@@ -8,13 +10,27 @@
         "log",
         "data",
         "mods",
-        "serpent",
+        // "serpent",
         "table_size",
         "util",
         "localised_print",
         "__DebugAdapter",
         "__Profiler"
     ],
+    "diagnostics.groupFileStatus": {
+        "ambiguity": "Any",
+        "await": "Any",
+        "codestyle": "Any",
+        "duplicate": "Any",
+        "global": "Any",
+        "luadoc": "Any",
+        "redefined": "Any",
+        "strict": "Any",
+        "strong": "Any",
+        "type-check": "Any",
+        "unbalanced": "Any",
+        "unused": "Any"
+    },
     "diagnostics.ignoredFiles": "Opened",
     "diagnostics.libraryFiles": "Opened",
     "diagnostics.neededFileStatus": {
@@ -26,7 +42,7 @@
         "circle-doc-class": "Any",
         "close-non-object": "Any",
         "code-after-break": "Any",
-        "codestyle-check": "Opened",
+        "codestyle-check": "Opened!",
         "count-down-loop": "Any",
         "deprecated": "Any",
         "different-requires": "Any",
@@ -46,7 +62,7 @@
         "need-check-nil": "Any",
         "newfield-call": "Any",
         "newline-call": "Any",
-        "no-unknown": "None!",
+        "no-unknown": "Opened!",
         "not-yieldable": "Any",
         "param-type-mismatch": "Any",
         "redefined-local": "Any",
@@ -79,7 +95,13 @@
     "diagnostics.unusedLocalExclude": [
         "_*_"
     ],
+    "format.enable": true,
+    "hint.arrayIndex": "Auto",
+    "hint.enable": true,
+    "hint.semicolon": "Disable",
+    "hint.setType": true,
     "hover.expandAlias": false,
+    "Lua.misc.parameters": [],
     "runtime.path": [
         "?.lua",
         "/home/nexela/Media/Develop/Cpp/factorio/data/core/lualib/?.lua"
@@ -87,6 +109,7 @@
     "runtime.pathStrict": true,
     "runtime.plugin": "/home/nexela/Media/Develop/Lua/libs/factorio-sumneko-plugin/plugin.lua",
     "runtime.version": "Lua 5.2",
+    "semantic.enable": true,
     "spell.dict": [
         "stds",
         "factorio",
@@ -112,6 +135,7 @@
         "uint",
         "midrange"
     ],
+    "telemetry.enable": true,
     "type.castNumberToInteger": false,
     "type.weakUnionCheck": false,
     "workspace.checkThirdParty": false,

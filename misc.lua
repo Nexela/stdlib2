@@ -32,7 +32,7 @@ end
 --- @param number number
 --- @param delimiter? string default: `","`
 --- @return string
-function Misc.delineate_number2(number, delimiter)
+function Misc.delineate_number(number, delimiter)
   delimiter = delimiter or ","
   local num_str = tostring(number)
   local sign, before, after = num_str:match("([%-]?)(%d*)(%.?%d*)") ---@type string, string, string
