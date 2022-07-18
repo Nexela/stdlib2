@@ -2,7 +2,7 @@
 ---@operator call(AnyArea): AreaClass
 local Area = {}
 
----@class AreaClass: BoundingBox
+---@class AreaClass
 local AreaClass = {}
 local area_meta = {}
 
@@ -49,23 +49,23 @@ local function new_unsafe(ltx, lty, rbx, rby, ori, metatable)
 end
 
 ---@param self AnyBox
----@return number, number, number, number, float
+---@return number, number, number, number, RealOrientation?
 ---@nodiscard
 local function as_tuple(self)
   local lt, rb = self.left_top or self[1], self.right_bottom or self[2]
-  return lt.x or lt[1], lt.y or lt[2], rb.x or rb[1], rb.y or rb[2], self.orientation or self[3]
+  return lt.x or lt[1], lt.y or lt[2], rb.x or rb[1], rb.y or rb[2], self.orientation or self[3] --[[@as RealOrientation|nil]]
 end
 
 ---@param self AnyBox
----@return MapVector, MapVector, float
+---@return Vector.1, Vector.1, RealOrientation?
 local function as_vector_tuple(self)
   local lt, rb = self.left_top or self[1], self.right_bottom or self[2]
-  return { lt.x or lt[1], lt.y or lt[2] }, { rb.x or rb[1], rb.y or rb[2] }, self.orientation or self[3]
+  return { lt.x or lt[1], lt.y or lt[2] }, { rb.x or rb[1], rb.y or rb[2] }, self.orientation or self[3] --[[@as RealOrientation|nil]]
 end
 
 --luacheck: ignore 211/as_tuple_any
 ---@param self AnyBox|number
----@return number, number, number, number, float?
+---@return number, number, number, number, RealOrientation??
 ---@diagnostic disable-next-line: unused-local
 local function as_tuple_any(self)
   local typeof = type(self)
@@ -180,7 +180,7 @@ do ---@block Area Methods
       local lt, rb, ori = as_vector_tuple(other)
       self.left_top:add(lt)
       self.right_bottom:add(rb)
-      local ori_result = Orientation.add(self.orientation or 0.0, ori or 0.0)
+      local ori_result = Orientation.add(self.orientation --[[@as RealOrientation]] or 0.0, ori or 0.0)
       self.orientation = ori_result ~= 0 and ori_result or nil
     end
     return self
@@ -194,7 +194,7 @@ do ---@block Area Methods
       local lt, rb, ori = as_vector_tuple(other)
       self.left_top:subtract(lt)
       self.right_bottom:subtract(rb)
-      local ori_result = Orientation.add(self.orientation or 0.0, -ori or 0.0)
+      local ori_result = Orientation.add(self.orientation --[[@as RealOrientation]] or 0.0, -ori or 0.0)
       self.orientation = ori_result ~= 0 and ori_result or nil
     end
     return self
@@ -208,7 +208,7 @@ do ---@block Area Methods
       local lt, rb, ori = as_vector_tuple(other)
       self.left_top:multiply(lt)
       self.right_bottom:multiply(rb)
-      local ori_result = Orientation.multiply(self.orientation or 0.0, ori or 0.0)
+      local ori_result = Orientation.multiply(self.orientation --[[@as RealOrientation]] or 0.0, ori or 0.0)
       self.orientation = ori_result ~= 0 and ori_result or nil
     end
     return self
@@ -222,7 +222,7 @@ do ---@block Area Methods
       local lt, rb, ori = as_vector_tuple(other)
       self.left_top:divide(lt)
       self.right_bottom:divide(rb)
-      local ori_result = Orientation.multiply(self.orientation or 0.0, -ori or 0.0)
+      local ori_result = Orientation.multiply(self.orientation --[[@as RealOrientation]] or 0.0, -ori or 0.0)
       self.orientation = ori_result ~= 0 and ori_result or nil
     end
     return self
@@ -427,9 +427,9 @@ do ---@block Other
     return lt.x, lt.y, rb.x, rb.y
   end
 
-  ---@return VectorBox
+  ---@return BoundingBox.1
   ---@nodiscard
-  function AreaClass:unpack_vector_box()
+  function AreaClass:unpack_bounding_box()
     local lt, rb = self.left_top, self.right_bottom
     return { { lt.x, lt.y }, { rb.x, rb.y } }
   end
@@ -470,7 +470,7 @@ do ---@block Metamethods
 
 end
 -- ============================================================================
-do ---@block AreaClass Constructors
+do ---@block Area Constructors
 
   ---@param area? AnyArea
   ---@return AreaClass
@@ -501,7 +501,7 @@ do ---@block AreaClass Constructors
     return new(arr[1], arr[2], arr[3], arr[4], arr[5])
   end
 
-  ---@param vecbox VectorBox
+  ---@param vecbox BoundingBox.1
   ---@return AreaClass
   ---@nodiscard
   function Area:from_vector_box(vecbox)
@@ -600,18 +600,13 @@ return Area
 ---@field right_bottom MapPositionClass
 ---@field right_top MapPositionClass
 ---@field left_bottom MapPositionClass
----@field orientation float? RealOrientation
----@field width number
----@field height number
+---@field orientation RealOrientation?
+---@field width double
+---@field height double
 
----@alias AnyArea AreaClass|BoundingBox
----@alias AnyBox AnyArea|VectorBox
+---@alias AnyArea AreaClass
+---@alias AnyBox AnyArea|BoundingBox
 ---@alias FuncTable {[string]: function}
-
----@class VectorBox
----@field [1] MapVector
----@field [2] MapVector
----@field [3] float?
 
 ---@class AreaArray
 ---@field [1] number

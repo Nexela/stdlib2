@@ -42,7 +42,7 @@
         "circle-doc-class": "Any",
         "close-non-object": "Any",
         "code-after-break": "Any",
-        "codestyle-check": "Opened!",
+        "codestyle-check": "Any",
         "count-down-loop": "Any",
         "deprecated": "Any",
         "different-requires": "Any",

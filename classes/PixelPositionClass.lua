@@ -1,4 +1,4 @@
----@class PixelPositionClass: PositionClass, PixelPosition
+---@class PixelPositionClass: PositionClass, PixelPosition.0
 ---@field new fun(self: PixelPositionClass, position: AnyPosOrVec): PixelPositionClass
 ---@field construct fun(self: PixelPositionClass, x: integer, y: integer): PixelPositionClass
 local PixelPositionClass = {}
@@ -51,12 +51,10 @@ end
 -- ============================================================================
 return PixelPositionClass
 
----@class PixelPosition
+---@alias PixelPosition PixelPosition.0|PixelPosition.1
+---@class PixelPosition.0
 ---@field x double
 ---@field y double
----@field [1] double
----@field [2] double
-
----@class PixelVector
+---@class PixelPosition.1
 ---@field [1] double
 ---@field [2] double

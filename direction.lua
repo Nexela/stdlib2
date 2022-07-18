@@ -27,7 +27,7 @@ end
 ---@return defines.direction
 ---@nodiscard
 function Direction.next(direction, eight_way)
-  return (direction + (eight_way and 1 or 2)) % 8 --[[@as defines.direction]]
+  return (direction + (eight_way and 1 or 2)) % 8
 end
 
 ---Calculate the previous four-way or eight-way direction.
@@ -36,7 +36,7 @@ end
 ---@return defines.direction
 ---@nodiscard
 function Direction.previous(direction, eight_way)
-  return (direction + (eight_way and -1 or -2)) % 8 --[[@as defines.direction]]
+  return (direction + (eight_way and -1 or -2)) % 8
 end
 
 ---Calculate an orientation from a direction.
@@ -44,13 +44,13 @@ end
 ---@return RealOrientation
 ---@nodiscard
 function Direction.to_orientation(direction)
-  return direction / 8
+  return direction / 8 --[[@as RealOrientation]]
 end
 
 ---Calculate a vector from a direction.
 ---@param direction defines.direction
 ---@param distance? number default: `1`
----@return MapVector
+---@return Vector.1
 ---@nodiscard
 function Direction.to_vector(direction, distance)
   distance = distance or 1
@@ -80,7 +80,7 @@ end
 ---@param direction defines.direction
 ---@param longitudinal number Distance to move in the specified direction.
 ---@param orthogonal number Distance to move perpendicular to the specified direction.
----@return MapVector
+---@return Vector.1
 ---@nodiscard
 function Direction.to_vector_2d(direction, longitudinal, orthogonal)
   if direction == defines.direction.north then

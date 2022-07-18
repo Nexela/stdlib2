@@ -1,4 +1,4 @@
----@class TilePositionClass: PositionClass, TilePosition
+---@class TilePositionClass: PositionClass, TilePosition.0
 ---@field new fun(self: TilePositionClass, position: AnyPosOrVec): TilePositionClass
 ---@field construct fun(self: TilePositionClass, x: integer, y: integer): TilePositionClass
 local TilePositionClass = {}
@@ -46,7 +46,3 @@ do ---@block Metamethods
 end
 -- ============================================================================
 return TilePositionClass
-
----@class TileVector
----@field [1] integer
----@field [2] integer

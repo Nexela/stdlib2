@@ -1,20 +1,20 @@
 ---Functions for working with orientations.
----@class Orientation
+---@class Orientation: RealOrientation
 local Orientation = {}
 
-Orientation.north = defines.direction.north / 8
-Orientation.east = defines.direction.east / 8
-Orientation.west = defines.direction.west / 8
-Orientation.south = defines.direction.south / 8
-Orientation.northeast = defines.direction.northeast / 8
-Orientation.northwest = defines.direction.northwest / 8
-Orientation.southeast = defines.direction.southeast / 8
-Orientation.southwest = defines.direction.southwest / 8
+Orientation.north     = defines.direction.north / 8 --[[@as RealOrientation]]
+Orientation.east      = defines.direction.east / 8 --[[@as RealOrientation]]
+Orientation.west      = defines.direction.west / 8 --[[@as RealOrientation]]
+Orientation.south     = defines.direction.south / 8 --[[@as RealOrientation]]
+Orientation.northeast = defines.direction.northeast / 8 --[[@as RealOrientation]]
+Orientation.northwest = defines.direction.northwest / 8 --[[@as RealOrientation]]
+Orientation.southeast = defines.direction.southeast / 8 --[[@as RealOrientation]]
+Orientation.southwest = defines.direction.southwest / 8 --[[@as RealOrientation]]
 
 local floor = math.floor
 
 ---Returns a 4way or 8way direction from an orientation.
----@param orientation float
+---@param orientation RealOrientation
 ---@param eight_way boolean
 ---@return defines.direction
 ---@nodiscard
@@ -25,26 +25,26 @@ function Orientation.to_direction(orientation, eight_way)
 end
 
 ---Returns the opposite orientation.
----@param orientation float
----@return float
+---@param orientation RealOrientation
+---@return RealOrientation
 ---@nodiscard
 function Orientation.opposite(orientation)
   return (orientation + 0.5) % 1.0
 end
 
 ---Add two orientations together.
----@param orientation1 float
----@param orientation2 float
----@return float
+---@param orientation1 RealOrientation
+---@param orientation2 RealOrientation
+---@return RealOrientation
 ---@nodiscard
 function Orientation.add(orientation1, orientation2)
   return (orientation1 + orientation2) % 1.0
 end
 
 ---Multiply two orientations together.
----@param orientation1 float
----@param orientation2 float
----@return float
+---@param orientation1 RealOrientation
+---@param orientation2 RealOrientation
+---@return RealOrientation
 ---@nodiscard
 function Orientation.multiply(orientation1, orientation2)
   return (orientation1 * orientation2) % 1.0

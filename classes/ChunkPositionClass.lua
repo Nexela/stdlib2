@@ -1,4 +1,4 @@
----@class ChunkPositionClass: PositionClass, ChunkPosition
+---@class ChunkPositionClass: PositionClass, ChunkPosition.0
 ---@field new fun(self: ChunkPositionClass, position: AnyPosOrVec): ChunkPositionClass
 ---@field construct fun(self: ChunkPositionClass, x: integer, y: integer): ChunkPositionClass
 local ChunkPositionClass = {}
@@ -73,7 +73,3 @@ return ChunkPositionClass
 ---@operator sub (integer|AnyPosOrVec):ChunkPositionClass
 ---@operator div (integer|AnyPosOrVec):ChunkPositionClass
 ---@operator mod (integer|AnyPosOrVec):ChunkPositionClass
-
----@class ChunkVector
----@field [1] integer
----@field [2] integer

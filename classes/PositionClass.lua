@@ -267,7 +267,7 @@ do ---@block Position
     ---@generic Class: AnyPositionClass
     ---@param self Class
     ---@param dir defines.direction
-    ---@param distance number
+    ---@param distance double
     ---@return Class
     function PositionClass:translate(dir, distance)
       return PositionClass.add(self, Direction.to_vector(dir, distance))
@@ -350,7 +350,7 @@ do ---@block Position
     ---@return RealOrientation
     ---@param other AnyPosOrVec
     function PositionClass:orientation_to(other)
-      return (1 - (self:atan2(other) / pi)) / 2
+      return (1 - (self:atan2(other) / pi)) / 2 --[[@as RealOrientation]]
     end
 
     ---Calculates the Euclidean distance between two positions.
@@ -416,7 +416,7 @@ do ---@block Position
   -------------------------------------------------------------------------------
   do ---@block Other
 
-    ---@return MapVector
+    ---@return Vector.1
     ---@nodiscard
     function PositionClass:pack()
       return { self.x, self.y }

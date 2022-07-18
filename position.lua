@@ -141,9 +141,20 @@ return Position
 ---@field Area Area?
 ---@operator call(AnyPosition):AnyPositionClass
 
----@alias AnyVector MapVector|ChunkVector|TileVector|PixelVector
----@alias AnySimplePosition MapPosition|ChunkPosition|TilePosition|PixelPosition
+---@alias AnySimplePosition MapPosition.0|ChunkPosition.0|TilePosition.0|PixelPosition.0|Vector.0
 ---@alias AnyPositionClass MapPositionClass|ChunkPositionClass|TilePositionClass|PixelPositionClass
+---@alias AnyVector MapPosition.1|ChunkPosition.1|TilePosition.1|PixelPosition.1|Vector.1|IntVector.1
+
 ---@alias AnyPosition AnyPositionClass|AnySimplePosition
 ---@alias AnyPosOrVec AnyPosition|AnyVector
----@alias AnyIntPosOrVec ChunkPosition|ChunkPositionClass|TilePosition|TilePositionClass|ChunkVector
+---@alias AnyIntPos ChunkPosition.0|TilePosition.0|IntVector.0|ChunkPositionClass|TilePositionClass|
+---@alias AnyIntVec ChunkPosition.1|TilePosition.1|IntVector.1
+---@alias AnyIntPosOrVec ChunkPosition|TilePosition|IntVector|ChunkPositionClass|TilePositionClass
+
+---@alias IntVector IntVector.0|IntVector.1
+---@class IntVector.0
+---@field x integer
+---@field y integer
+---@class IntVector.1
+---@field [1] integer
+---@field [2] integer

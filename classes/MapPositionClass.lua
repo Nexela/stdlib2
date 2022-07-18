@@ -1,4 +1,4 @@
----@class MapPositionClass: PositionClass, MapPosition
+---@class MapPositionClass: PositionClass, MapPosition.0
 ---@field new fun(self: MapPositionClass, position: AnyPosOrVec): MapPositionClass
 ---@field construct fun(self: MapPositionClass, x: double, y: double): MapPositionClass
 local MapPositionClass = {}
@@ -102,7 +102,3 @@ return MapPositionClass
 ---@operator sub (double|AnyPosOrVec):MapPositionClass
 ---@operator div (double|AnyPosOrVec):MapPositionClass
 ---@operator mod (MapPositionClass):MapPositionClass
-
----@class MapVector
----@field [1] double
----@field [2] double
