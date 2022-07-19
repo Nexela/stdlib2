@@ -35,7 +35,6 @@ describe("Area", function()
 
       it("error", function()
         ---@diagnostic disable: discard-returns, redundant-parameter
-        assert.has_error(function() Area:new {} end)
         assert.has_error(function() Area:new { {}, {} } end)
         assert.has_error(function() Area:new(0) end)
         assert.has_error(function() Area:new(0, nil, nil, nil, .5) end)

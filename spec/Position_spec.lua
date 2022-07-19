@@ -1,5 +1,5 @@
 require("spec.runner")()
----@diagnostic disable: discard-returns
+---@diagnostic disable: discard-returns, unused-local
 local match = require("luassert.match") ---@type assert.match
 local mock = require("luassert.mock") ---@type assert.mock
 local spy = require("luassert.spy") ---@type assert.spy
