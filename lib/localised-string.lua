@@ -35,7 +35,7 @@ function LocalisedString.concat(...)
       end
     end
   end
-  -- TODO: handle too large concats by nesting them
+  ---@todo handle too large concats by nesting them
   return result
 end
 
