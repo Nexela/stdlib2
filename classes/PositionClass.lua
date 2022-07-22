@@ -9,7 +9,7 @@
 local PositionClass = {}
 
 local Direction = require("__stdlib2__/direction")
-local math = require("__stdlib2__/math") --[[@as mathlibext]]
+local math = require("__stdlib2__/math")
 local ERROR = require("__stdlib2__/config").error
 
 local floor, ceil, round, abs = math.floored, math.ceiled, math.round, math.abs
@@ -158,6 +158,7 @@ do ---@block Position
     ---@param self Class
     ---@return Class
     function PositionClass:swap()
+      self = self ---@type AnyPositionClass
       local x, y = self.y, self.x
       self.x, self.y = x, y
       return self
@@ -344,6 +345,7 @@ do ---@block Position
   -------------------------------------------------------------------------------
   do ---@block Booleans
 
+    ---@param area AreaClass|BoundingBox.0
     function PositionClass:inside(area)
       local lt = area.left_top
       local rb = area.right_bottom

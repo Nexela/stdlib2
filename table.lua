@@ -5,35 +5,36 @@
 ---which are tables with sequentially numbered keys. All table functions will work with arrays as well, but
 ---array functions **will not** work with tables.
 ---@class tablelibext: tablelib
-local table = {}
+local Table = {}
 
----@alias array {[integer]: any}
+local table_insert = table.insert
 
+---@bug Sumneko generics are bleh
+---@diagnostic disable: no-unknown
 -- Import lua table functions
-for name, f in pairs(_ENV.table) do table[name] = f end
+for name, f in pairs(table) do Table[name] = f end
 
----Shallow copy an array's values into a new array.
----
+---Shallow copy an array's values into a new array.\
 ---This function is optimized specifically for arrays, and should be used in place of `table.shallow_copy` for arrays.
----@param arr array
----@return array
-function table.array_copy(arr)
-  local new_arr = {}
-  for i = 1, #arr do new_arr[i] = arr[i] end
+---@param array any[]
+---@return any[]
+function Table.array_copy(array)
+  local new_arr = {} ---@type any[]
+  for i = 1, #array do new_arr[i] = array[i] end
   return new_arr
 end
 
 ---Merge all of the given arrays into a single array.
----@param arrays array[] An array of arrays to merge.
----@return array
-function table.array_merge(arrays)
-  local output = {}
+---@param arrays any[][] An array of arrays to merge.
+---@return any[]
+function Table.array_merge(arrays)
+  local output = {} ---@type any[]
   local i = 0
   for j = 1, #arrays do
-    local arr = arrays[j]
-    for k = 1, #arr do
+    local array = arrays[j]
+    for k = 1, #array do
       i = i + 1
-      output[i] = arr[k]
+      output[i] = array[k]
     end
   end
   return output
@@ -45,11 +46,11 @@ end
 ---@param tbl1 table
 ---@param tbl2 table
 ---@return boolean
-function table.deep_compare(tbl1, tbl2)
+function Table.deep_compare(tbl1, tbl2)
   if tbl1 == tbl2 then return true end
   for k, v in pairs(tbl1) do
     if type(v) == "table" and type(tbl2[k]) == "table" then
-      if not table.deep_compare(v, tbl2[k]) then return false end
+      if not Table.deep_compare(v, tbl2[k]) then return false end
     else
       if v ~= tbl2[k] then return false end
     end
@@ -65,8 +66,8 @@ end
 ---Does not create new copies of Factorio objects.
 ---@param tbl table The table to make a copy of.
 ---@return table
-function table.deep_copy(tbl)
-  local lookup_table = {}
+function Table.deep_copy(tbl)
+  local lookup_table = {} ---@type table
   local function _copy(object)
     if type(object) ~= "table" then
       return object
@@ -77,7 +78,7 @@ function table.deep_copy(tbl)
       return lookup_table[object]
     end
 
-    local new_table = {}
+    local new_table = {} ---@type table
     lookup_table[object] = new_table
     for index, value in pairs(object) do new_table[_copy(index)] = _copy(value) end
 
@@ -106,15 +107,15 @@ end
 ---```
 ---@param tables table[] An array of of tables to merge.
 ---@return table
-function table.deep_merge(tables)
-  local output = {}
+function Table.deep_merge(tables)
+  local output = {} ---@type table
   for _, tbl in ipairs(tables) do
     for k, v in pairs(tbl) do
       if type(v) == "table" then
         if type(output[k] or false) == "table" then
-          output[k] = table.deep_merge { output[k], v }
+          output[k] = Table.deep_merge { output[k], v }
         else
-          output[k] = table.deep_copy(v)
+          output[k] = Table.deep_copy(v)
         end
       else
         output[k] = v
@@ -136,7 +137,7 @@ end
 ---@param tbl table The table to search.
 ---@param value any The value to match. Must have an `eq` metamethod set, otherwise will error.
 ---@return any?
-function table.find(tbl, value)
+function Table.find(tbl, value)
   for k, v in pairs(tbl) do
     if v == value then return k end
   end
@@ -161,7 +162,7 @@ end
 ---@param callback fun(value, key, ...):boolean Receives `value`, `key`, `...` as parameters.
 ---@vararg ...? Additional arguments for callback.
 ---@return boolean #Whether the callback returned truthy for any one item, and thus halted iteration.
-function table.for_each(tbl, callback, ...)
+function Table.for_each(tbl, callback, ...)
   for k, v in pairs(tbl) do
     if callback(v, k, ...) then return true end
   end
@@ -196,7 +197,7 @@ end
 ---  [1] = 1000,
 ---}
 ---event.on_tick(function()
----  global.from_k = table.for_n_of(extremely_large_table, global.from_k, 10, function(v) game.print(v) end)
+---  X.from_k = table.for_n_of(extremely_large_table, X.from_k, 10, function(v) game.print(v) end)
 ---end)
 ---```
 ---@generic k, v
@@ -210,7 +211,7 @@ end
 ---@return any next_key Where the iteration ended. Can be any valid table key, or `nil`. Pass this as `from_k` in the next call to `for_n_of` for `tbl`.
 ---@return table<k, any> results The results compiled from the first return of `callback`.
 ---@return boolean reached_end Whether or not the end of the table was reached on this iteration.
-function table.for_n_of(tbl, from_k, n, callback, _next, ...)
+function Table.for_n_of(tbl, from_k, n, callback, _next, ...)
   -- Bypass if a custom `next` function was provided
   if not _next then
     -- Verify start key exists, else start from scratch
@@ -265,7 +266,7 @@ end
 ---@param array_insert? boolean If true, the result will be constructed as an array of values that matched the filter. Key references will be lost.
 ---@vararg ...? Additional parameters for callback if needed.
 ---@return table
-function table.filter(tbl, filter, array_insert, ...)
+function Table.filter(tbl, filter, array_insert, ...)
   local output = {}
   local i = 0
   for k, v in pairs(tbl) do
@@ -286,7 +287,7 @@ end
 ---@param key any
 ---@param default_value any
 ---@return any
-function table.get_or_insert(tbl, key, default_value)
+function Table.get_or_insert(tbl, key, default_value)
   local value = tbl[key]
   if not value then
     tbl[key] = default_value
@@ -298,12 +299,12 @@ end
 ---Inserts element value at position pos in list if element does not exist.
 ---
 ---This function is O(n) and should be used sparingly.
----@param list array
+---@param list any[]
 ---@param pos integer
 ---@param value any
 ---@return boolean #true if the item was inserted. false if item was already in the list.
----@overload fun(list: array, value: any):boolean
-function table.unique_insert(list, pos, value)
+---@overload fun(list: any[], value: any):boolean
+function Table.unique_insert(list, pos, value)
   if value == nil then
     value = pos
     pos = #list + 1
@@ -311,7 +312,7 @@ function table.unique_insert(list, pos, value)
   for _, val in ipairs(list) do
     if val == value then return false end
   end
-  table.insert(list, pos, value)
+  table_insert(list, pos, value)
   return true
 end
 
@@ -327,7 +328,7 @@ end
 ---```
 ---@param tbl table
 ---@return table
-function table.invert(tbl)
+function Table.invert(tbl)
   local inverted = {}
   for k, v in pairs(tbl) do inverted[v] = k end
   return inverted
@@ -348,7 +349,7 @@ end
 ---@param mapper fun(v:v, k:k, ...):any? Takes in `value`, `key`, `...` as parameters.
 ---@vararg ...? Additional parameters for mapper if needed.
 ---@return table<k, any>
-function table.map(tbl, mapper, ...)
+function Table.map(tbl, mapper, ...)
   local output = {}
   for k, v in pairs(tbl) do output[k] = mapper(v, k, ...) end
   return output
@@ -363,28 +364,28 @@ end
 ---This function utilizes [insertion sort](https://en.wikipedia.org/wiki/Insertion_sort),
 ---which is _extremely_ inefficient with large data sets. However, you can spread the sorting over multiple ticks,
 ---reducing the performance impact. Only use this function if `table.sort` is too slow.
----@param arr array
+---@param array any[]
 ---@param from_index number The index to start iteration at (inclusive). Pass `nil` or a number less than `2` to begin at the start of the array.
 ---@param iterations number The number of iterations to perform. Higher is more performance-heavy.
 ---@param comp? fun(a, b, ...):boolean A comparison function for sorting. Must return truthy if `a < b`.
 ---@vararg ...? Additional parameters for comp if needed.
 ---@return number? next_index The index to start the next iteration at, or `nil` if the end was reached.
-function table.partial_sort(arr, from_index, iterations, comp, ...)
+function Table.partial_sort(array, from_index, iterations, comp, ...)
   comp = comp or default_comp
   local start_index = (from_index and from_index > 2) and from_index or 2
   local end_index = start_index + (iterations - 1)
 
   for j = start_index, end_index do
-    local key = arr[j]
+    local key = array[j]
     if not key then return nil end
     local i = j - 1
 
-    while i > 0 and comp(key, arr[i], ...) do
-      arr[i + 1] = arr[i]
+    while i > 0 and comp(key, array[i], ...) do
+      array[i + 1] = array[i]
       i = i - 1
     end
 
-    arr[i + 1] = key
+    array[i + 1] = key
   end
 
   return end_index + 1
@@ -408,7 +409,7 @@ end
 ---@param initial_value? any The initial value for the accumulator.
 ---@vararg ...? Additional parameters for reducer if needed.
 ---@return any #The accumulated value.
-function table.reduce(tbl, reducer, initial_value, ...)
+function Table.reduce(tbl, reducer, initial_value, ...)
   local accumulator = initial_value
   for key, value in pairs(tbl) do
     if accumulator then
@@ -420,12 +421,14 @@ function table.reduce(tbl, reducer, initial_value, ...)
   return accumulator
 end
 
+
+
 ---Remove and return a value from the table.
 ---@param tbl table
 ---@param key any The key to retrieve.
 ---@return any?
-function table.retrieve(tbl, key)
-  local value = tbl[key]
+function Table.retrieve(tbl, key)
+  local value = tbl[key] --[[@as any?]]
   if value ~= nil then
     tbl[key] = nil
     return value
@@ -440,7 +443,7 @@ end
 ---Does not copy metatables.
 ---@param tbl table
 ---@return table
-function table.shallow_copy(tbl)
+function Table.shallow_copy(tbl)
   local output = {}
   for k, v in pairs(tbl) do output[k] = v end
   return output
@@ -450,7 +453,7 @@ end
 ---Unlike `table.deep_merge`, this will only combine the top level of the tables.
 ---@param tables table[]
 ---@return table
-function table.shallow_merge(tables)
+function Table.shallow_merge(tables)
   local output = {}
   for _, tbl in pairs(tables) do
     for key, value in pairs(tbl) do output[key] = value end
@@ -462,7 +465,7 @@ end
 ---
 ---Uses Factorio's built-in `table_size` function.
 ---@type fun(tbl: table) : number
-table.size = _ENV.table_size
+Table.size = table_size
 
 ---Retrieve a shallow copy of a portion of an array, selected from `start` to `end` inclusive.
 ---
@@ -471,15 +474,15 @@ table.size = _ENV.table_size
 ---# Examples
 ---
 ---```lua
----local arr = {10, 20, 30, 40, 50, 60, 70, 80, 90}
----local sliced = table.slice(arr, 3, 7) -- {30, 40, 50, 60, 70}
----log(serpent.line(arr)) -- {10, 20, 30, 40, 50, 60, 70, 80, 90} (unchanged)
+---local array = {10, 20, 30, 40, 50, 60, 70, 80, 90}
+---local sliced = table.slice(array, 3, 7) -- {30, 40, 50, 60, 70}
+---log(serpent.line(array)) -- {10, 20, 30, 40, 50, 60, 70, 80, 90} (unchanged)
 ---```
----@param array array
+---@param array any[]
 ---@param start? integer default: `1`
 ---@param stop? integer Stop at this index. If zero or negative, will stop `n` items from the end of the array (default: `#array`).
----@return array #A new array with the copied values.
-function table.slice(array, start, stop)
+---@return any[] #A new array with the copied values.
+function Table.slice(array, start, stop)
   local n = #array
 
   start = start or 1
@@ -504,15 +507,15 @@ end
 ---# Examples
 ---
 ---```lua
----local arr = {10, 20, 30, 40, 50, 60, 70, 80, 90}
----local spliced = table.splice(arr, 3, 7) -- {30, 40, 50, 60, 70}
----log(serpent.line(arr)) -- {10, 20, 80, 90} (values were removed)
+---local array = {10, 20, 30, 40, 50, 60, 70, 80, 90}
+---local spliced = table.splice(array, 3, 7) -- {30, 40, 50, 60, 70}
+---log(serpent.line(array)) -- {10, 20, 80, 90} (values were removed)
 ---```
----@param array array
+---@param array any[]
 ---@param start integer default: `1`
 ---@param stop? integer Stop at this index. If zero or negative, will stop `n` items from the end of the array (default: `#array`).
----@return array #A new array with the extracted values.
-function table.splice(array, start, stop)
+---@return any[] #A new array with the extracted values.
+function Table.splice(array, start, stop)
   local n = #array
 
   start = start or 1
@@ -524,10 +527,10 @@ function table.splice(array, start, stop)
   local output = {}
   local k = 1
   for _ = start, stop do
-    output[k] = table.remove(array, start)
+    output[k] = Table.remove(array, start)
     k = k + 1
   end
   return output
 end
 
-return table
+return Table

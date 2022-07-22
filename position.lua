@@ -1,4 +1,8 @@
 ---@class Position
+---@field [MapPositionClass] MapPositionClass
+---@field [ChunkPositionClass] ChunkPositionClass
+---@field [TilePositionClass] TilePositionClass
+---@field [PixelPositionClass] PixelPositionClass
 local Position = {}
 __POSITION_DEBUG__ = __POSITION_DEBUG__ or nil
 
@@ -43,7 +47,7 @@ do ---@block Position Constructors
 
   ---@generic num: double|integer|float
   ---@param pos AnyPosOrVec|number
-  ---@return num, num
+  ---@return number, number
   ---@nodiscard
   function Position:as_tuple_any(pos)
     if type(pos) == "number" then return pos, pos end
@@ -52,7 +56,7 @@ do ---@block Position Constructors
 
   ---@generic num: double|integer|float
   ---@param pos AnyPosOrVec
-  ---@return num, num
+  ---@return number, number
   ---@nodiscard
   function Position:as_tuple(pos)
     return pos.x or pos[1], pos.y or pos[2]
@@ -68,7 +72,7 @@ do ---@block Position Constructors
     assert(self == Position, ERROR.called_without_self)
     if not position then return self:zero(class) end
     assert(type(position) == "table" and (position.x or position[1]) and (position.y or position[2]), ERROR.not_position_table)
-    local x, y = position.x or position[1], position.y or position[2]
+    local x, y = position.x or position[1], position.y or position[2] ---@type number, number
     if class == self.ChunkPosition or class == self.TilePosition then
       assert(math_floor(x) == x and math_floor(y) == y, ERROR.invalid_values_integers)
     else

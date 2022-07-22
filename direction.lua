@@ -2,7 +2,7 @@
 ---@class Direction
 local Direction = {}
 
-local math = require("__stdlib2__/math") --[[@as mathlibext]]
+local math = require("__stdlib2__/math")
 
 Direction.north = defines.direction.north
 Direction.east = defines.direction.east

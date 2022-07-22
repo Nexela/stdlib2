@@ -1,7 +1,7 @@
-require("spec.runner")()
+require("spec/runner")()
 local Area = require("__stdlib2__/area")
-local zero
-local zeroOri
+local zero ---@type BoundingBox.0
+local zeroOri ---@type BoundingBox.0
 
 describe("Area", function()
   before_each(function()

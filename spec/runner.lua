@@ -1,7 +1,7 @@
 do
   --If faketorio is not installed on a default path look for it 2 folders up from the root
   --I think this can be handled with a busted config in spec root maybe.
-  local paths = {}
+  local paths = {} ---@type string[]
   for str in string.gmatch(package.path, "([^;]+)") do table.insert(paths, str) end
   paths[#paths + 1] = "../../?.lua"
   paths[#paths + 1] = "../../?/init.lua"
@@ -11,7 +11,7 @@ do
   require("faketorio")
 end
 
-local say = require("say")
+local say = require("say") ---@type table
 local assert = require("luassert") ---@type assert
 local function raw_equal(_, arguments)
   if #arguments ~= 2 then

@@ -574,8 +574,8 @@ do ---@block Area Constructors
   ---@param area AnyArea
   ---@return AreaClass
   function Area:load(area)
-    Position:load(area.left_top)
-    Position:load(area.right_bottom)
+    Position:load(area.left_top--[[@as AnyPosition]] )
+    Position:load(area.right_bottom--[[@as AnyPosition]] )
     return setmetatable(area, area_meta) --[[@as AreaClass]]
   end
 
@@ -602,8 +602,10 @@ return Area
 ---@field width double
 ---@field height double
 
----@alias AnyArea AreaClass
----@alias AnyBox AnyArea|BoundingBox
+---@alias AnyArea AreaClass|BoundingBox.0
+---@alias AnyBox AnyArea|BoundingBox.1
+---@alias AnyVecBox AreaClass|BoundingBox.1
+
 ---@alias FuncTable {[string]: function}
 
 ---@class AreaArray

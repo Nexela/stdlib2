@@ -1,12 +1,18 @@
 ---Extends Lua 5.2 string.
 ---@class stringlib
-local string = {}
+local String = {}
 
--- Import lua table functions
-for name, func in pairs(_ENV.string) do string[name] = func end
-getmetatable("").__index = string -- Allow string syntatic sugar to work with this class
+do -- Import lua table functions
+  for name, func in pairs(string) --[[@as fun(): string, function]]do
+    String[name] = func ---@diagnostic disable-line: no-unknown ---@bug Workaround for generic issues in sumneko
+  end
 
-local map = require("lib/table").map
+  -- Allow calling as str:XXX()
+  local metatable = getmetatable("")
+  metatable.__index = String
+end
+
+local map = require("__stdlib2__/table").map
 local concat, insert = table.concat, table.insert
 local ceil, abs = math.ceil, math.abs
 
@@ -14,7 +20,7 @@ local ceil, abs = math.ceil, math.abs
 ---@param s string
 ---@return string
 ---@nodiscard
-function string.trim(s)
+function String.trim(s)
   return (s:gsub([[^%s*(.-)%s*$]], "%1"))
 end
 
@@ -23,7 +29,7 @@ end
 ---@param start string
 ---@return boolean
 ---@nodiscard
-function string.starts_with(s, start)
+function String.starts_with(s, start)
   return s:find(start, 1, true) == 1
 end
 
@@ -32,7 +38,7 @@ end
 ---@param ends string
 ---@return boolean
 ---@nodiscard
-function string.ends_with(s, ends)
+function String.ends_with(s, ends)
   return #s >= #ends and s:find(ends, #s - #ends + 1, true) and true or false
 end
 
@@ -41,7 +47,7 @@ end
 ---@param contains string
 ---@return boolean
 ---@nodiscard
-function string.contains(s, contains)
+function String.contains(s, contains)
   return s and s:find(contains) ~= nil
 end
 
@@ -49,7 +55,7 @@ end
 ---@param s string
 ---@return boolean
 ---@nodiscard
-function string.is_empty(s)
+function String.is_empty(s)
   return s == nil or s == ""
 end
 
@@ -57,7 +63,7 @@ end
 ---@param s string
 ---@return boolean
 ---@nodiscard
-function string.is_alpha(s)
+function String.is_alpha(s)
   return s:find("^%a+$") == 1
 end
 
@@ -65,7 +71,7 @@ end
 ---@param s string
 ---@return boolean
 ---@nodiscard
-function string.is_digit(s)
+function String.is_digit(s)
   return s:find("^%d+$") == 1
 end
 
@@ -73,7 +79,7 @@ end
 ---@param s string
 ---@return boolean
 ---@nodiscard
-function string.is_alphanum(s)
+function String.is_alphanum(s)
   return s:find("^%w+$") == 1
 end
 
@@ -81,7 +87,7 @@ end
 ---@param s string
 ---@return boolean
 ---@nodiscard
-function string.is_space(s)
+function String.is_space(s)
   return s:find("^%s+$") == 1
 end
 
@@ -89,7 +95,7 @@ end
 ---@param s string
 ---@return boolean
 ---@nodiscard
-function string.is_lower(s)
+function String.is_lower(s)
   return s:find("^[%l%s]+$") == 1
 end
 
@@ -97,7 +103,7 @@ end
 ---@param s string
 ---@return boolean
 ---@nodiscard
-function string.is_upper(s)
+function String.is_upper(s)
   return s:find("^[%u%s]+$") == 1
 end
 
@@ -106,7 +112,7 @@ end
 ---@param s string
 ---@return string
 ---@nodiscard
-function string.title_case(s)
+function String.title_case(s)
   return (s:gsub([[(%S)(%S*)]], function(f, r)
     return f:upper() .. r:lower()
   end))
@@ -130,7 +136,7 @@ end
 ---@param truncation_string? string
 ---@return string
 ---@nodiscard
-function string.truncate(s, width, truncation_string)
+function String.truncate(s, width, truncation_string)
   truncation_string = truncation_string or ""
   local t = #truncation_string
   local size = abs(width) --[[@as integer]]
@@ -151,7 +157,7 @@ end
 ---@param other any called with tostring
 ---@return string
 ---@nodiscard
-function string.concat(this, other)
+function String.concat(this, other)
   return this .. tostring(other)
 end
 
@@ -162,7 +168,7 @@ end
 ---@param s string
 ---@param seq any[] Array of string values, or values convertible to strings.
 ---@nodiscard
-function string.join(s, seq)
+function String.join(s, seq)
   return concat(map(seq, tostring), s)
 end
 
@@ -202,7 +208,7 @@ end
 ---@param ch string Optional padding character, defaults to ' '.
 ---@return string
 ---@nodiscard
-function string.ljust(s, w, ch)
+function String.ljust(s, w, ch)
   return _just(s, w, ch, true, false)
 end
 
@@ -212,7 +218,7 @@ end
 ---@param ch string Optional padding character, defaults to ' '.
 ---@return string
 ---@nodiscard
-function string.rjust(s, w, ch)
+function String.rjust(s, w, ch)
   return _just(s, w, ch, false, true)
 end
 
@@ -222,7 +228,7 @@ end
 ---@param ch string Optional padding character, defaults to ' '.
 ---@return string
 ---@nodiscard
-function string.center(s, w, ch)
+function String.center(s, w, ch)
   return _just(s, w, ch, true, true)
 end
 
@@ -239,7 +245,7 @@ end
 ---@param func? fun(string):any function func pass each split string through this function.
 ---@return any[]
 ---@nodiscard
-function string.split(s, sep, pattern, func)
+function String.split(s, sep, pattern, func)
   sep = sep or "."
   sep = sep ~= "" and sep or "."
   sep = not pattern and sep:gsub("([^%w])", "%%%1") or sep
@@ -264,7 +270,7 @@ end
 ---@param prepend_number boolean
 ---@return string the ordinal suffix
 ---@nodiscard
-function string.ordinal_suffix(n, prepend_number)
+function String.ordinal_suffix(n, prepend_number)
   if tonumber(n) then
     n = abs(n) % 100
     local d = n % 10
@@ -308,10 +314,10 @@ local exponent_multipliers = {
 ---@param s string
 ---@return number
 ---@nodiscard
-function string.exponent_number(s)
+function String.exponent_number(s)
   if type(s) == "string" then
     ---@diagnostic disable-next-line: spell-check
-    local value, exp = s:match("([%-+]?[0-9]*%.?[0-9]+)([yzafpnumcdhkMGTPEZY]?)")
+    local value, exp = s:match("([%-+]?[0-9]*%.?[0-9]+)([yzafpnumcdhkMGTPEZY]?)") ---@type number, string?
     exp = exp or " "
     value = (value or 0) * (exponent_multipliers[exp] or 1)
     return value
@@ -321,4 +327,4 @@ function string.exponent_number(s)
   return 0
 end
 
-return string
+return String

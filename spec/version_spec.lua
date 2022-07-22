@@ -1,4 +1,4 @@
-require("spec.runner")()
+require("spec/runner")()
 local Version = require("__stdlib2__/lib/version")
 
 describe("Version", function()
