@@ -59,7 +59,7 @@ end
 ---@param divisor? number `num` will be ceiled to the nearest multiple of `divisor` (default: 1).
 ---@nodiscard
 function Math.ceiled(num, divisor)
-  if divisor then return Math.ceil(num / divisor) * divisor end
+  if divisor then return math_ceil(num / divisor) * divisor end
   return math_ceil(num)
 end
 
@@ -68,7 +68,7 @@ end
 ---@param divisor? number `num` will be floored to the nearest multiple of `divisor` (default: 1).
 ---@nodiscard
 function Math.floored(num, divisor)
-  if divisor then return Math.floor(num / divisor) * divisor end
+  if divisor then return math_floor(num / divisor) * divisor end
   return math_floor(num)
 end
 
@@ -150,10 +150,11 @@ end
 ---When `amount = 1`, returns `num2`.
 ---
 ---When `amount = 0.5`, returns the midpoint of `num1` and `num2`.
----@param num1 number
----@param num2 number
----@param amount number
----@return number
+---@generic Number: number
+---@param num1 Number
+---@param num2 Number
+---@param amount Number
+---@return Number
 ---@nodiscard
 function Math.lerp(num1, num2, amount)
   return num1 + (num2 - num1) * Math.clamp(amount, 0, 1)

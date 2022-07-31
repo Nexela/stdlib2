@@ -7,6 +7,8 @@
 ---@class tablelibext: tablelib
 local Table = {}
 
+Table.size = table_size
+
 local table_insert = table.insert
 
 ---@bug Sumneko generics are bleh
@@ -460,12 +462,6 @@ function Table.shallow_merge(tables)
   end
   return output
 end
-
----Retrieve the size of a table.
----
----Uses Factorio's built-in `table_size` function.
----@type fun(tbl: table) : number
-Table.size = table_size
 
 ---Retrieve a shallow copy of a portion of an array, selected from `start` to `end` inclusive.
 ---
