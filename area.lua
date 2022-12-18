@@ -1,8 +1,8 @@
----@class Area
----@operator call(AnyArea): AreaClass
+--- @class Area
+--- @operator call(AnyArea): AreaClass
 local Area = {}
 
----@class AreaClass
+--- @class AreaClass
 local AreaClass = {}
 local area_meta = {}
 
@@ -16,15 +16,14 @@ local setmetatable = setmetatable
 local abs = math.abs
 local concat = table.concat
 
--- ============================================================================
----@param ltx number
----@param lty number
----@param rbx number
----@param rby number
----@param ori? float
----@param metatable? table
----@return AreaClass
----@nodiscard
+--- @param ltx number
+--- @param lty number
+--- @param rbx number
+--- @param rby number
+--- @param ori? float
+--- @param metatable? table
+--- @return AreaClass
+--- @nodiscard
 local function new(ltx, lty, rbx, rby, ori, metatable)
   local lt, rb = Position:construct(ltx, lty), Position:construct(rbx, rby)
   local area = setmetatable({ left_top = lt, right_bottom = rb, orientation = ori }, metatable or area_meta)
@@ -32,95 +31,94 @@ local function new(ltx, lty, rbx, rby, ori, metatable)
   return area
 end
 
----@param ltx number
----@param lty number
----@param rbx number
----@param rby number
----@param ori? float
----@param metatable? table
----@return AreaClass
----@nodiscard
+--- @param ltx number
+--- @param lty number
+--- @param rbx number
+--- @param rby number
+--- @param ori? float
+--- @param metatable? table
+--- @return AreaClass
+--- @nodiscard
 local function new_unsafe(ltx, lty, rbx, rby, ori, metatable)
   local lt, rb = Position:load { x = ltx, y = lty }, Position:load { x = rbx, y = rby }
   local area = setmetatable({ left_top = lt, right_bottom = rb, orientation = ori }, metatable or area_meta)
   return area
 end
 
----@param self AnyBox
----@return number, number, number, number, RealOrientation?
----@nodiscard
+--- @param self AnyBox
+--- @return number, number, number, number, RealOrientation?
+--- @nodiscard
 local function as_tuple(self)
   local lt, rb = self.left_top or self[1], self.right_bottom or self[2]
   return lt.x or lt[1], lt.y or lt[2], rb.x or rb[1], rb.y or rb[2], self.orientation or self[3] --[[@as RealOrientation|nil]]
 end
 
----@param self AnyBox
----@return Vector.1, Vector.1, RealOrientation?
+--- @param self AnyBox
+--- @return Vector.1, Vector.1, RealOrientation?
 local function as_vector_tuple(self)
   local lt, rb = self.left_top or self[1], self.right_bottom or self[2]
   return { lt.x or lt[1], lt.y or lt[2] }, { rb.x or rb[1], rb.y or rb[2] }, self.orientation or self[3] --[[@as RealOrientation|nil]]
 end
 
 --luacheck: ignore 211/as_tuple_any
----@param self AnyBox|number
----@return number, number, number, number, RealOrientation??
----@diagnostic disable-next-line: unused-local
+--- @param self AnyBox|number
+--- @return number, number, number, number, RealOrientation??
+--- @diagnostic disable-next-line: unused-local
 local function as_tuple_any(self)
   local typeof = type(self)
   if typeof == "number" then return self, self, self, self
   elseif typeof == "table" then
-    ---@type MapPosition, MapPosition
+    --- @type MapPosition, MapPosition
     local lt, rb = self.left_top or self[1], self.right_bottom or self[2]
     return lt.x or lt[1], lt.y or lt[2], rb.x or rb[1], rb.y or rb[2], self.orientation or self[3]
   else error("Invalid type for area: " .. typeof) end
 end
 
--- ============================================================================
-do ---@block Area Constructors
+do --- @block Area Constructors
 
-  ---@return AreaClass
-  ---@nodiscard
+  --- @return AreaClass
+  --- @nodiscard
   function AreaClass:copy()
     local lt, rb = self.left_top:copy_as(Position.MapPosition), self.right_bottom:copy_as(Position.MapPosition)
     return setmetatable({ left_top = lt, right_bottom = rb, orientation = rawget(self, "ori") }, getmetatable(self))
   end
 
 end
--------------------------------------------------------------------------------
-do ---@block Position Conversions
 
-  ---@return MapPositionClass
-  ---@nodiscard
+do --- @block Position Conversions
+
+  --- @return MapPositionClass
+  --- @nodiscard
   function AreaClass:center()
     local lt = self.left_top
     local width, height = self:dimensions()
     return Position:construct_unsafe(lt.x + width / 2, lt.y + height / 2)
   end
 
-  ---@return MapPositionClass
-  ---@nodiscard
+  --- @return MapPositionClass
+  --- @nodiscard
   function AreaClass:get_left_bottom()
     local lt = self.left_top
     return Position:construct_unsafe(lt.x, lt.y + self:get_height())
   end
 
-  ---@return MapPositionClass
-  ---@nodiscard
+  --- @return MapPositionClass
+  --- @nodiscard
   function AreaClass:get_right_top()
     local lt = self.left_top
     return Position:construct_unsafe(lt.x + self:get_width(), lt.y)
   end
 
 end
--------------------------------------------------------------------------------
-do ---@block Area Methods
 
-  ---@param ltx? number
-  ---@param lty? number
-  ---@param rbx? number
-  ---@param rby? number
-  ---@param ori? float
-  ---@return AreaClass
+do --- @block Area Methods
+
+  --- @param ltx? number
+  --- @param lty? number
+  --- @param rbx? number
+  --- @param rby? number
+  --- @param ori? float
+  --- @return AreaClass
   function AreaClass:update(ltx, lty, rbx, rby, ori)
     self.left_top:update(ltx, lty)
     self.right_bottom:update(rbx, rby)
@@ -241,119 +239,119 @@ do ---@block Area Methods
   end
 
 end
--------------------------------------------------------------------------------
-do ---@block Numbers
 
-  ---@return number
-  ---@nodiscard
+do --- @block Numbers
+
+  --- @return number
+  --- @nodiscard
   function AreaClass:get_width()
     return abs(self.left_top.x - self.right_bottom.x)
   end
 
-  ---@return number
-  ---@nodiscard
+  --- @return number
+  --- @nodiscard
   function AreaClass:get_height()
     return abs(self.left_top.y - self.right_bottom.y)
   end
 
-  ---@return number
-  ---@nodiscard
+  --- @return number
+  --- @nodiscard
   function AreaClass:size()
     return self:get_width() * self:get_height()
   end
 
-  ---@return number, number
-  ---@nodiscard
+  --- @return number, number
+  --- @nodiscard
   function AreaClass:dimensions()
     return self:get_width(), self:get_height()
   end
 
-  ---@return number
-  ---@nodiscard
+  --- @return number
+  --- @nodiscard
   function AreaClass:perimeter()
     return 2 * self:get_width() + 2 * self:get_height()
   end
 
 end
--------------------------------------------------------------------------------
-do ---@block Booleans
 
-  ---@param position AnyPosOrVec
-  ---@return boolean
-  ---@nodiscard
+do --- @block Booleans
+
+  --- @param position AnyPosOrVec
+  --- @return boolean
+  --- @nodiscard
   function AreaClass:contains(position)
     local lt, rb = self.left_top, self.right_bottom
     local x, y = Position:as_tuple(position)
     return x >= lt.x and x <= rb.x and y >= lt.y and y <= rb.y
   end
 
-  ---@param other AnyArea
-  ---@return boolean
-  ---@nodiscard
+  --- @param other AnyArea
+  --- @return boolean
+  --- @nodiscard
   function AreaClass:inside(other)
     local ltx, rbx, lty, rby = self:unpack()
     local o_ltx, o_rbx, o_lty, o_rby = as_tuple(other)
     return ltx >= o_ltx and rbx <= o_rbx and lty >= o_lty and rby <= o_rby
   end
 
-  ---@return boolean
-  ---@nodiscard
+  --- @return boolean
+  --- @nodiscard
   function AreaClass:equals(other)
     local lt, rb = self.left_top, self.right_bottom
     local other_ltx, other_lty, other_rbx, other_rby = as_tuple(other)
     return lt.x == other_ltx and lt.y == other_lty and rb.x == other_rbx and rb.y == other_rby
   end
 
-  ---@return boolean
-  ---@nodiscard
+  --- @return boolean
+  --- @nodiscard
   function AreaClass:is_zero()
     return self:size() == 0
   end
 
-  ---@return boolean
-  ---@nodiscard
+  --- @return boolean
+  --- @nodiscard
   function AreaClass:is_square()
     return self:get_width() == self:get_height()
   end
 
-  ---@return boolean
-  ---@nodiscard
+  --- @return boolean
+  --- @nodiscard
   function AreaClass:is_chunk_area()
     local lt, rb = self.left_top, self.right_bottom
     return lt.x % 32 == 0 and lt.y % 32 == 0 and rb.x == lt.x + 32 and rb.y == lt.y + 32
   end
 
-  ---@return boolean
-  ---@nodiscard
+  --- @return boolean
+  --- @nodiscard
   function AreaClass:is_chunk_tile_area()
     local lt, rb = self.left_top, self.right_bottom
     return lt.x % 32 == 0 and lt.y % 32 == 0 and rb.x == lt.x + 31 and rb.y == lt.y + 31
   end
 
-  ---@return boolean
-  ---@nodiscard
+  --- @return boolean
+  --- @nodiscard
   function AreaClass:is_tile_area()
     local lt, rb = self.left_top, self.right_bottom
     return lt.x % 1 == 0 and lt.y % 1 == 0 and rb.x == lt.x + 1 and rb.y == lt.y + 1
   end
 
-  ---@return boolean
-  ---@nodiscard
+  --- @return boolean
+  --- @nodiscard
   function AreaClass:is_normal()
     local lt, rb = self.left_top, self.right_bottom
     return rb.x >= lt.x and rb.y >= lt.y
   end
 
 end
--------------------------------------------------------------------------------
-do ---@block Strings
+
+do --- @block Strings
 
   --- { left_top = { y = 0, y = 0 }, right_bottom = { x = 0, y = 0 } }
   ---
   --- { left_top = { y = 0, y = 0 }, right_bottom = { x = 0, y = 0 }, orientation = 0 }
-  ---@param precision? float
-  ---@return string
-  ---@nodiscard
+  --- @param precision? float
+  --- @return string
+  --- @nodiscard
   function AreaClass:to_string(precision)
     local lt, rb = self.left_top:to_string(precision), self.right_bottom:to_string(precision)
     local f_str = precision and ("%" .. precision .. "f") or "%s"
@@ -365,9 +363,9 @@ do ---@block Strings
   --- { { 0, 0 }, { 0, 0 } }
   ---
   --- { { 0, 0 }, { 0, 0 }, 0 }
-  ---@param precision? float
-  ---@return string
-  ---@nodiscard
+  --- @param precision? float
+  --- @return string
+  --- @nodiscard
   function AreaClass:to_string_vector_box(precision)
     precision = precision or .3
     local lt, rb = self.left_top:to_string_vector(precision), self.right_bottom:to_string_vector(precision)
@@ -380,9 +378,9 @@ do ---@block Strings
   --- { 0, 0 }, { 0, 0 }
   ---
   --- { 0, 0 }, { 0, 0 }, 0
-  ---@param precision? float
-  ---@return string
-  ---@nodiscard
+  --- @param precision? float
+  --- @return string
+  --- @nodiscard
   function AreaClass:to_string_vector_tuple(precision)
     precision = precision or .3
     local lt, rb = self.left_top:to_string_vector(precision), self.right_bottom:to_string_vector(precision)
@@ -395,9 +393,9 @@ do ---@block Strings
   --- 0, 0, 0, 0
   ---
   --- 0, 0, 0, 0, 0
-  ---@param precision? float
-  ---@return string
-  ---@nodiscard
+  --- @param precision? float
+  --- @return string
+  --- @nodiscard
   function AreaClass:to_string_tuple(precision)
     precision = precision or .3
     local lt, rb = self.left_top:to_string_tuple(precision), self.right_bottom:to_string_tuple(precision)
@@ -408,38 +406,38 @@ do ---@block Strings
   end
 
 end
--------------------------------------------------------------------------------
-do ---@block Other
 
-  ---@return AreaArray
-  ---@nodiscard
+do --- @block Other
+
+  --- @return AreaArray
+  --- @nodiscard
   function AreaClass:pack()
     local lt, rb = self.left_top, self.right_bottom
     return { lt.x, lt.y, rb.x, rb.y }
   end
 
-  ---@return number, number, number, number
-  ---@nodiscard
+  --- @return number, number, number, number
+  --- @nodiscard
   function AreaClass:unpack()
     local lt, rb = self.left_top, self.right_bottom
     return lt.x, lt.y, rb.x, rb.y
   end
 
-  ---@return BoundingBox.1
-  ---@nodiscard
+  --- @return BoundingBox.1
+  --- @nodiscard
   function AreaClass:unpack_bounding_box()
     local lt, rb = self.left_top, self.right_bottom
     return { { lt.x, lt.y }, { rb.x, rb.y } }
   end
 
 end
--- ============================================================================
-do ---@block Metamethods
 
-  ---@param self AreaClass
+do --- @block Metamethods
+
+  --- @param self AreaClass
   area_meta.__call = function(self) return self:copy() end
 
-  ---@param self AreaClass
+  --- @param self AreaClass
   area_meta.__index = function(self, key)
     if AreaClass[key] then return AreaClass[key]
     elseif key == 1 then return rawget(self, "left_top")
@@ -452,7 +450,7 @@ do ---@block Metamethods
     else return nil end
   end
 
-  ---@param self AreaClass
+  --- @param self AreaClass
   area_meta.__newindex = function(self, key, value)
     if key == 1 then rawset(self, "left_top", Position.new(value))
     elseif key == 2 then rawset(self, "right_bottom", Position.new(value))
@@ -467,12 +465,12 @@ do ---@block Metamethods
   area_meta.__eq = function(a, b) return a.left_top == b.left_top and a.right_bottom == b.right_bottom and a.orientation == b.orientation end
 
 end
--- ============================================================================
-do ---@block Area Constructors
 
-  ---@param area? AnyArea
-  ---@return AreaClass
-  ---@nodiscard
+do --- @block Area Constructors
+
+  --- @param area? AnyArea
+  --- @return AreaClass
+  --- @nodiscard
   function Area:new(area)
     if not area then return self:zero() end
     local lt = Position:new(area.left_top or area[1])
@@ -481,45 +479,45 @@ do ---@block Area Constructors
     return setmetatable({ left_top = lt, right_bottom = rb, orientation = o }, area_meta)
   end
 
-  ---@param ltx number
-  ---@param lty number
-  ---@param rbx number
-  ---@param rby number
-  ---@param ori? float
-  ---@return AreaClass
-  ---@nodiscard
+  --- @param ltx number
+  --- @param lty number
+  --- @param rbx number
+  --- @param rby number
+  --- @param ori? float
+  --- @return AreaClass
+  --- @nodiscard
   function Area:construct(ltx, lty, rbx, rby, ori)
     return new(ltx, lty, rbx, rby, ori)
   end
 
-  ---@param arr AreaArray
-  ---@return AreaClass
-  ---@nodiscard
+  --- @param arr AreaArray
+  --- @return AreaClass
+  --- @nodiscard
   function Area:from_array(arr)
     return new(arr[1], arr[2], arr[3], arr[4], arr[5])
   end
 
-  ---@param vecbox BoundingBox.1
-  ---@return AreaClass
-  ---@nodiscard
+  --- @param vecbox BoundingBox.1
+  --- @return AreaClass
+  --- @nodiscard
   function Area:from_vector_box(vecbox)
     return new(vecbox[1][1], vecbox[1][2], vecbox[2][1], vecbox[2][2], vecbox[3])
   end
 
-  ---@param left_top AnyPosOrVec
-  ---@param right_bottom AnyPosOrVec
-  ---@return AreaClass
-  ---@nodiscard
+  --- @param left_top AnyPosOrVec
+  --- @param right_bottom AnyPosOrVec
+  --- @return AreaClass
+  --- @nodiscard
   function Area:from_positions(left_top, right_bottom)
     local ltx, lty = Position:as_tuple(left_top)
     local rbx, rby = Position:as_tuple(right_bottom)
     return new(ltx, lty, rbx, rby)
   end
 
-  ---@param position AnyPosOrVec
-  ---@param vector? AnyPosOrVec|number
-  ---@return AreaClass
-  ---@nodiscard
+  --- @param position AnyPosOrVec
+  --- @param vector? AnyPosOrVec|number
+  --- @return AreaClass
+  --- @nodiscard
   function Area:from_position(position, vector)
     local x, y = Position:as_tuple(position)
     local vec_x, vec_y = 0, 0
@@ -528,10 +526,10 @@ do ---@block Area Constructors
     return new(x - vec_x, y - vec_y, x + vec_x, y + vec_y)
   end
 
-  ---@param left_top AnyPosOrVec
-  ---@param vector? AnyPosOrVec|number
-  ---@return AreaClass
-  ---@nodiscard
+  --- @param left_top AnyPosOrVec
+  --- @param vector? AnyPosOrVec|number
+  --- @return AreaClass
+  --- @nodiscard
   function Area:from_left_top(left_top, vector)
     local x, y = Position:as_tuple(left_top)
     local vec_x, vec_y = 0, 0
@@ -539,48 +537,48 @@ do ---@block Area Constructors
     return new(x, y, x + vec_x, y + vec_y)
   end
 
-  ---@return AreaClass
-  ---@nodiscard
+  --- @return AreaClass
+  --- @nodiscard
   function Area:from_string()
     error("Not implemented")
   end
 
-  ---@return AreaClass
-  ---@nodiscard
+  --- @return AreaClass
+  --- @nodiscard
   function Area:zero()
     return new_unsafe(0, 0, 0, 0)
   end
 
-  ---@return AreaClass
-  ---@nodiscard
+  --- @return AreaClass
+  --- @nodiscard
   function Area:one()
     return new_unsafe(0, 0, 1, 1)
   end
 
-  ---@return AreaClass
-  ---@nodiscard
+  --- @return AreaClass
+  --- @nodiscard
   function Area:two()
     return new_unsafe(-1, -1, 1, 1)
   end
 
-  ---@param left_top MapPositionClass
-  ---@param right_bottom MapPositionClass
-  ---@return AreaClass
-  ---@nodiscard
+  --- @param left_top MapPositionClass
+  --- @param right_bottom MapPositionClass
+  --- @return AreaClass
+  --- @nodiscard
   function Area:load_from_positions(left_top, right_bottom)
     return setmetatable({ left_top = left_top, right_bottom = right_bottom }, area_meta)
   end
 
-  ---@param area AnyArea
-  ---@return AreaClass
+  --- @param area AnyArea
+  --- @return AreaClass
   function Area:load(area)
     Position:load(area.left_top--[[@as AnyPosition]] )
     Position:load(area.right_bottom--[[@as AnyPosition]] )
     return setmetatable(area, area_meta) --[[@as AreaClass]]
   end
 
-  ---@param area AnyArea
-  ---@return AreaClass
+  --- @param area AnyArea
+  --- @return AreaClass
   local function __call(self, area)
     return self:load(area)
   end
@@ -589,28 +587,26 @@ do ---@block Area Constructors
 
 end
 
--- ============================================================================
-
 return Area
 
----@class AreaClass
----@field left_top MapPositionClass
----@field right_bottom MapPositionClass
----@field right_top MapPositionClass
----@field left_bottom MapPositionClass
----@field orientation RealOrientation?
----@field width double
----@field height double
+--- @class AreaClass
+--- @field left_top MapPositionClass
+--- @field right_bottom MapPositionClass
+--- @field right_top MapPositionClass
+--- @field left_bottom MapPositionClass
+--- @field orientation RealOrientation?
+--- @field width double
+--- @field height double
 
----@alias AnyArea AreaClass|BoundingBox.0
----@alias AnyBox AnyArea|BoundingBox.1
----@alias AnyVecBox AreaClass|BoundingBox.1
+--- @alias AnyArea AreaClass|BoundingBox.0
+--- @alias AnyBox AnyArea|BoundingBox.1
+--- @alias AnyVecBox AreaClass|BoundingBox.1
 
----@alias FuncTable {[string]: function}
+--- @alias FuncTable {[string]: function}
 
----@class AreaArray
----@field [1] number
----@field [2] number
----@field [3] number
----@field [4] number
----@field [5] float?
+--- @class AreaArray
+--- @field [1] number
+--- @field [2] number
+--- @field [3] number
+--- @field [4] number
+--- @field [5] float?

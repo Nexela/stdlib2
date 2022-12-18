@@ -1,12 +1,12 @@
 require("spec/runner")()
----@diagnostic disable: discard-returns, unused-local
-local match = require("luassert.match") ---@type assert.match
-local mock = require("luassert.mock") ---@type assert.mock
-local spy = require("luassert.spy") ---@type assert.spy
+--- @diagnostic disable: discard-returns, unused-local
+local match = require("luassert.match") --- @type assert.match
+local mock = require("luassert.mock") --- @type assert.mock
+local spy = require("luassert.spy") --- @type assert.spy
 
 describe("Position loads correctly", function()
   after_each(function()
-    ---@diagnostic disable: no-unknown
+    --- @diagnostic disable: no-unknown
     package.loaded["__stdlib2__/position"] = nil
     package.loaded["__stdlib2__/area"] = nil
     package.loaded["__stdlib2__/classes/TilePositionClass"] = nil
@@ -14,7 +14,7 @@ describe("Position loads correctly", function()
     package.loaded["__stdlib2__/classes/PixelPositionClass"] = nil
     package.loaded["__stdlib2__/classes/MapPositionClass"] = nil
     package.loaded["__stdlib2__/classes/PositionClass"] = nil
-    ---@diagnostic enable: no-unknown
+    --- @diagnostic enable: no-unknown
   end)
 
   it("Does not have Area", function()

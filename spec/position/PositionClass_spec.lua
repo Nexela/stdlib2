@@ -1,5 +1,5 @@
 require("spec.runner")()
-local P = require("__stdlib2__/area").Position ---@diagnostic disable-line: unused-local
+local P = require("__stdlib2__/area").Position --- @diagnostic disable-line: unused-local
 
 describe("PositionClass", function()
   it("should be a class", function()

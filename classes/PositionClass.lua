@@ -1,11 +1,11 @@
----@class PositionClass
----@field private MapPosition MapPositionClass
----@field private ChunkPosition ChunkPositionClass
----@field private TilePosition TilePositionClass
----@field private PixelPosition PixelPositionClass
----@field private Class AnyPositionClass
----@field private Position Position
----@field private Area Area?
+--- @class PositionClass
+--- @field public MapPosition MapPositionClass
+--- @field public ChunkPosition ChunkPositionClass
+--- @field public TilePosition TilePositionClass
+--- @field public PixelPosition PixelPositionClass
+--- @field public Class AnyPositionClass
+--- @field public Position Position
+--- @field public Area Area?
 local PositionClass = {}
 
 local Direction = require("__stdlib2__/direction")
@@ -19,132 +19,131 @@ local setmetatable = setmetatable
 local pi = math.pi
 local directions = defines.direction
 
--- =============================================================================
-do ---@block Position
-  do ---@block Constructors
+do --- @block Position
+  do --- @block Constructors
 
-    ---@todo Needs overload generic support
-    ---@generic Class: AnyPositionClass
-    ---@return Class
-    ---@nodiscard
+    --- @todo Needs overload generic support
+    --- @generic Class: AnyPositionClass
+    --- @return Class
+    --- @nodiscard
     function PositionClass:copy()
       return setmetatable({ x = self.x, y = self.y }, self.Class)
     end
 
-    ---@todo Needs overload generic support
-    ---@generic Class: AnyPositionClass
-    ---@param class Class
-    ---@return Class
+    --- @todo Needs overload generic support
+    --- @generic Class: AnyPositionClass
+    --- @param class Class
+    --- @return Class
     function PositionClass:copy_as(class)
       return setmetatable({ x = self.x, y = self.y }, class)
     end
 
   end
-  do ---@block Methods
+  do --- @block Methods
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@param x? number
-    ---@param y? number
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @param x? number
+    --- @param y? number
+    --- @return Class
     function PositionClass:update(x, y)
       self.x, self.y = x or self.x, y or self.y
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
     function PositionClass:normalize()
       self.x, self.y = (self.x * 0.00390625) / 0.00390625, (self.y * 0.00390625) / 0.00390625
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
     function PositionClass:floor(divisor)
       self.x, self.y = floor(self.x, divisor), floor(self.y, divisor)
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
     function PositionClass:ceil(divisor)
       self.x, self.y = ceil(self.x, divisor), ceil(self.y, divisor)
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
     function PositionClass:round(divisor)
       self.x, self.y = round(self.x, divisor), round(self.y, divisor)
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
     function PositionClass:abs()
       self.x, self.y = abs(self.x), abs(self.y)
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
-    ---@param other AnyPosOrVec
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
+    --- @param other AnyPosOrVec
     function PositionClass:add(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       self.x, self.y = self.x + other_x, self.y + other_y
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
-    ---@param other AnyPosOrVec
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
+    --- @param other AnyPosOrVec
     function PositionClass:subtract(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       self.x, self.y = self.x - other_x, self.y - other_y
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
-    ---@param other AnyPosOrVec
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
+    --- @param other AnyPosOrVec
     function PositionClass:multiply(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       self.x, self.y = self.x * other_x, self.y * other_y
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
-    ---@param other AnyPosOrVec
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
+    --- @param other AnyPosOrVec
     function PositionClass:divide(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       self.x, self.y = self.x / other_x, self.y / other_y
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
-    ---@param other AnyPosOrVec
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
+    --- @param other AnyPosOrVec
     function PositionClass:modulo(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       self.x, self.y = self.x % other_x, self.y % other_y
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
     function PositionClass:center()
       local ceil_x = ceil(self.x)
       local ceil_y = ceil(self.y)
@@ -154,46 +153,46 @@ do ---@block Position
     end
 
     --- Swap the x and y coordinates.
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
     function PositionClass:swap()
-      self = self ---@type AnyPositionClass
+      self = self --- @type AnyPositionClass
       local x, y = self.y, self.x
       self.x, self.y = x, y
       return self
     end
 
     --- Flip the signs of the position.
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
     function PositionClass:flip()
       self.x, self.y = -self.x, -self.y
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
     function PositionClass:flip_x()
       self.x = -self.x
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return Class
     function PositionClass:flip_y()
       self.y = -self.y
       return self
     end
 
     ---Trim the position to a length.
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@param max_length number
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @param max_length number
+    --- @return Class
     function PositionClass:trim(max_length)
       local s = max_length * max_length / (self.x * self.x + self.y * self.y)
       s = (s > 1 and 1) or sqrt(s)
@@ -201,11 +200,11 @@ do ---@block Position
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@param other AnyPosOrVec
-    ---@param alpha float
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @param other AnyPosOrVec
+    --- @param alpha float
+    --- @return Class
     function PositionClass:lerp(other, alpha)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       self.x = self.x + (other_x - self.x) * alpha
@@ -213,50 +212,50 @@ do ---@block Position
       return self
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@param dir defines.direction
-    ---@param distance double
-    ---@return Class
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @param dir defines.direction
+    --- @param distance double
+    --- @return Class
     function PositionClass:translate(dir, distance)
       return PositionClass.add(self, Direction.to_vector(dir, distance))
     end
 
   end
-  -------------------------------------------------------------------------------
-  do ---@block Position Class Mutates
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return MapPositionClass
+  do --- @block Position Class Mutates
+
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return MapPositionClass
     function PositionClass:as_map_position()
       return setmetatable(self, PositionClass.MapPosition)
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return ChunkPositionClass
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return ChunkPositionClass
     function PositionClass:as_chunk_position()
       return setmetatable(self, PositionClass.ChunkPosition)
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return PixelPositionClass
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return PixelPositionClass
     function PositionClass:as_pixel_position()
       return setmetatable(self, PositionClass.PixelPosition)
     end
 
-    ---@generic Class: AnyPositionClass
-    ---@param self Class
-    ---@return TilePositionClass
+    --- @generic Class: AnyPositionClass
+    --- @param self Class
+    --- @return TilePositionClass
     function PositionClass:as_tile_position()
       return setmetatable(self, PositionClass.TilePosition)
     end
 
   end
-  -------------------------------------------------------------------------------
-  do ---@block Numbers
+
+  do --- @block Numbers
 
     ---Gets the squared length of a position
     function PositionClass:len_squared()
@@ -269,21 +268,21 @@ do ---@block Position
     end
 
     ---Return the cross product of two positions.
-    ---@param other AnyPosOrVec
+    --- @param other AnyPosOrVec
     function PositionClass:cross(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       return self.x * other_y - self.y * other_x
     end
 
     ---Return the dot product of two positions.
-    ---@param other AnyPosOrVec
+    --- @param other AnyPosOrVec
     function PositionClass:dot(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       return self.x * other_x + self.y * other_y
     end
 
-    ---@param other AnyPosOrVec
-    ---@return defines.direction
+    --- @param other AnyPosOrVec
+    --- @return defines.direction
     function PositionClass:direction_to(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       local dx = self.x - other_x
@@ -296,14 +295,14 @@ do ---@block Position
       return dy > 0 and directions.west or directions.east
     end
 
-    ---@return RealOrientation
-    ---@param other AnyPosOrVec
+    --- @return RealOrientation
+    --- @param other AnyPosOrVec
     function PositionClass:orientation_to(other)
       return (1 - (self:atan2(other) / pi)) / 2 --[[@as RealOrientation]]
     end
 
     ---Calculates the Euclidean distance between two positions.
-    ---@param other AnyPosOrVec
+    --- @param other AnyPosOrVec
     function PositionClass:distance(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       local ax_bx = self.x - other_x
@@ -312,7 +311,7 @@ do ---@block Position
     end
 
     ---Calculates the Euclidean distance squared between two positions, useful when sqrt is not needed.
-    ---@param other AnyPosOrVec
+    --- @param other AnyPosOrVec
     function PositionClass:distance_squared(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       local ax_bx = self.x - other_x
@@ -322,19 +321,19 @@ do ---@block Position
 
     ---Calculates the manhatten distance between two positions.
     -- @see https://en.wikipedia.org/wiki/Taxicab_geometry Taxicab geometry (manhatten distance)
-    ---@param other AnyPosOrVec
+    --- @param other AnyPosOrVec
     function PositionClass:manhattan_distance(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       return abs(other_x - self.x) + abs(other_y - self.y)
     end
 
-    ---@param other AnyPosOrVec
+    --- @param other AnyPosOrVec
     function PositionClass:atan2(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       return atan2(other_x - self.x, other_y - self.y)
     end
 
-    ---@param other AnyPosOrVec
+    --- @param other AnyPosOrVec
     function PositionClass:angle(other)
       local dist = self:distance(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
@@ -342,10 +341,10 @@ do ---@block Position
     end
 
   end
-  -------------------------------------------------------------------------------
-  do ---@block Booleans
 
-    ---@param area AreaClass|BoundingBox.0
+  do --- @block Booleans
+
+    --- @param area AreaClass|BoundingBox.0
     function PositionClass:inside(area)
       local lt = area.left_top
       local rb = area.right_bottom
@@ -356,49 +355,49 @@ do ---@block Position
       return self.x == 0 and self.y == 0
     end
 
-    ---@param other AnyPosOrVec
+    --- @param other AnyPosOrVec
     function PositionClass:equals(other)
       local other_x, other_y = PositionClass.Position:as_tuple(other)
       return self.x == other_x and self.y == other_y
     end
 
   end
-  -------------------------------------------------------------------------------
-  do ---@block Other
 
-    ---@return Vector.1
-    ---@nodiscard
+  do --- @block Other
+
+    --- @return Vector.1
+    --- @nodiscard
     function PositionClass:pack()
       return { self.x, self.y }
     end
 
-    ---@nodiscard
+    --- @nodiscard
     function PositionClass:unpack()
       return self.x, self.y
     end
 
   end
-  -------------------------------------------------------------------------------
-  do ---@block Strings
 
-    ---@param precision? float
-    ---@nodiscard
+  do --- @block Strings
+
+    --- @param precision? float
+    --- @nodiscard
     function PositionClass:to_string(precision)
       local f = precision and ("%" .. precision .. "f") or "%s"
       local tab = { "{ x = ", f, ", y = ", f, " }" }
       return concat(tab):format(self.x, self.y)
     end
 
-    ---@param precision? float
-    ---@nodiscard
+    --- @param precision? float
+    --- @nodiscard
     function PositionClass:to_string_vector(precision)
       local f = precision and ("%" .. precision .. "f") or "%s"
       local tab = { "{ ", f, ", ", f, " }" }
       return concat(tab):format(self.x, self.y)
     end
 
-    ---@param precision? float
-    ---@nodiscard
+    --- @param precision? float
+    --- @nodiscard
     function PositionClass:to_string_tuple(precision)
       local f = precision and ("%" .. precision .. "f") or "%s"
       local tab = { f, f }
@@ -408,7 +407,7 @@ do ---@block Position
   end
 end
 
-do ---@block Metatamethods
+do --- @block Metatamethods
 
   PositionClass.__call = function(self) return PositionClass.copy(self) end
   PositionClass.__tostring = PositionClass.to_string
@@ -416,15 +415,15 @@ do ---@block Metatamethods
   PositionClass.__eq = function(self, other) return self.x == other.x and self.y == other.y end
   PositionClass.__unm = PositionClass.flip
 
-  ---@param self AnyPositionClass
+  --- @param self AnyPositionClass
   PositionClass.__newindex = function(self, key, value)
     if key == 1 then rawset(self, "x", value)
     elseif key == 2 then rawset(self, "y", value)
     else error(ERROR.no_assigning:format(key, self.__class)) end
   end
 
-  ---@param self AnyPosOrVec|number
-  ---@param other AnyPosOrVec|number
+  --- @param self AnyPosOrVec|number
+  --- @param other AnyPosOrVec|number
   PositionClass.__add = function(self, other)
     local metatable = getmetatable(self) or getmetatable(other)
     local self_x, self_y = PositionClass.Position:as_tuple_any(self)
@@ -432,8 +431,8 @@ do ---@block Metatamethods
     return PositionClass.Position:construct(self_x + other_x, self_y + other_y, metatable)
   end
 
-  ---@param self AnyPosOrVec|number
-  ---@param other AnyPosOrVec|number
+  --- @param self AnyPosOrVec|number
+  --- @param other AnyPosOrVec|number
   PositionClass.__sub = function(self, other)
     local metatable = getmetatable(self) or getmetatable(other)
     local self_x, self_y = PositionClass.Position:as_tuple_any(self)
@@ -441,8 +440,8 @@ do ---@block Metatamethods
     return PositionClass.Position:construct(self_x - other_x, self_y - other_y, metatable)
   end
 
-  ---@param self AnyPosOrVec|number
-  ---@param other AnyPosOrVec|number
+  --- @param self AnyPosOrVec|number
+  --- @param other AnyPosOrVec|number
   PositionClass.__mul = function(self, other)
     local metatable = getmetatable(self) or getmetatable(other)
     local self_x, self_y = PositionClass.Position:as_tuple_any(self)
@@ -450,8 +449,8 @@ do ---@block Metatamethods
     return PositionClass.Position:construct(self_x * other_x, self_y * other_y, metatable)
   end
 
-  ---@param self AnyPosOrVec|number
-  ---@param other AnyPosOrVec|number
+  --- @param self AnyPosOrVec|number
+  --- @param other AnyPosOrVec|number
   PositionClass.__div = function(self, other)
     local metatable = getmetatable(self) or getmetatable(other)
     local self_x, self_y = PositionClass.Position:as_tuple_any(self)
@@ -459,8 +458,8 @@ do ---@block Metatamethods
     return PositionClass.Position:construct(self_x / other_x, self_y / other_y, metatable)
   end
 
-  ---@param self AnyPosOrVec|number
-  ---@param other AnyPosOrVec|number
+  --- @param self AnyPosOrVec|number
+  --- @param other AnyPosOrVec|number
   PositionClass.__mod = function(self, other)
     local metatable = getmetatable(self) or getmetatable(other)
     local self_x, self_y = PositionClass.Position:as_tuple_any(self)

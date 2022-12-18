@@ -1,6 +1,7 @@
+--- @class Player
 local Player = {}
 
---- @param event on_player_created
+--- @param event EventData.on_player_created
 local function on_player_created(event)
   global._players = global._players or {}
   local index = event.player_index
@@ -36,30 +37,30 @@ Player.CoreEvents = {}
 
 Player.Events[defines.events.on_player_created] = on_player_created
 
---- @param event on_player_removed
+--- @param event EventData.on_player_removed
 Player.Events[defines.events.on_player_removed] = function(event)
   global._players[event.player_index] = nil
   global._last_player = nil
 end
 
---- @param event on_player_joined_game
+--- @param event EventData.on_player_joined_game
 Player.Events[defines.events.on_player_joined_game] = function(event)
   global._last_player = nil
 end
 
---- @param event on_player_left_game
+--- @param event EventData.on_player_left_game
 Player.Events[defines.events.on_player_left_game] = function(event)
   global._last_player = nil
 end
 
---- @param event on_player_changed_force
+--- @param event EventData.on_player_changed_force
 Player.Events[defines.events.on_player_changed_force] = function(event)
 end
 
 Player.CoreEvents["on_init"] = function(event)
   global._players = {}
   for _, player in pairs(game.players) do
-    Player.on_player_created { player_index = player.index }
+    Player.Events.on_player_created { player_index = player.index }
   end
 end
 

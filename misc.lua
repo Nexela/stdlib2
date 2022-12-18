@@ -1,7 +1,8 @@
+--- @class Misc
 local Misc = {}
 
 --- Convert given tick or game.tick into "[hh:]mm:ss" format.
---- @param tick? number|string default: `game.tick`
+--- @param tick? number|string default: `game.ticks_played`
 --- @param include_leading_zeroes? boolean If true, leading zeroes will be included in single-digit minute and hour values.
 --- @return string
 function Misc.ticks_to_time_string(tick, include_leading_zeroes)
@@ -35,7 +36,7 @@ end
 function Misc.delineate_number(number, delimiter)
   delimiter = delimiter or ","
   local num_str = tostring(number)
-  local sign, before, after = num_str:match("([%-]?)(%d*)(%.?%d*)") ---@type string, string, string
+  local sign, before, after = num_str:match("([%-]?)(%d*)(%.?%d*)") --- @type string, string, string
   local done
   repeat before, done = before:gsub("^(%d+)(%d%d%d)", "%1" .. delimiter .. "%2")
   until (done == 0)
@@ -47,7 +48,7 @@ end
 --- @param suppress_all boolean suppress all errors, not just file_not_found
 --- @return any
 function Misc.prequire(module, suppress_all)
-  ---@type boolean, any|string
+  --- @type boolean, any|string
   local ok, err = pcall(require, module)
   if ok then
     return err
@@ -90,6 +91,24 @@ end
 --- @return string
 function Misc.concat(lhs, rhs)
   return tostring(lhs) .. tostring(rhs)
+end
+
+--- @param append string
+function Misc.get_file_path(append)
+  return script.mod_name .. "/" .. append
+end
+
+--- Whether the item passed in may be called as a function
+--- @param func any to test for callability
+--- @return boolean
+function Misc.is_callable(func)
+  local t = type(func)
+  if t == "function" then return true end
+  if t == "table" then
+    local meta = getmetatable(func)
+    return meta and type(meta.__call) == "function"
+  end
+  return false
 end
 
 return Misc

@@ -1,5 +1,5 @@
----Functions for working with directions.
----@class Direction
+--- Functions for working with directions.
+--- @class Direction
 local Direction = {}
 
 local math = require("__stdlib2__/math")
@@ -13,45 +13,45 @@ Direction.northwest = defines.direction.northwest
 Direction.southeast = defines.direction.southeast
 Direction.southwest = defines.direction.southwest
 
----Calculate the opposite direction.
----@param direction defines.direction
----@return defines.direction
----@nodiscard
+--- Calculate the opposite direction.
+--- @param direction defines.direction
+--- @return defines.direction
+--- @nodiscard
 function Direction.opposite(direction)
   return (direction + 4) % 8 --[[@as defines.direction]]
 end
 
----Calculate the next four-way or eight-way direction.
----@param direction defines.direction
----@param eight_way? boolean
----@return defines.direction
----@nodiscard
+--- Calculate the next four-way or eight-way direction.
+--- @param direction defines.direction
+--- @param eight_way? boolean
+--- @return defines.direction
+--- @nodiscard
 function Direction.next(direction, eight_way)
   return (direction + (eight_way and 1 or 2)) % 8
 end
 
----Calculate the previous four-way or eight-way direction.
----@param direction defines.direction
----@param eight_way? boolean
----@return defines.direction
----@nodiscard
+--- Calculate the previous four-way or eight-way direction.
+--- @param direction defines.direction
+--- @param eight_way? boolean
+--- @return defines.direction
+--- @nodiscard
 function Direction.previous(direction, eight_way)
   return (direction + (eight_way and -1 or -2)) % 8
 end
 
----Calculate an orientation from a direction.
----@param direction defines.direction
----@return RealOrientation
----@nodiscard
+--- Calculate an orientation from a direction.
+--- @param direction defines.direction
+--- @return RealOrientation
+--- @nodiscard
 function Direction.to_orientation(direction)
   return direction / 8 --[[@as RealOrientation]]
 end
 
----Calculate a vector from a direction.
----@param direction defines.direction
----@param distance? number default: `1`
----@return Vector.1
----@nodiscard
+--- Calculate a vector from a direction.
+--- @param direction defines.direction
+--- @param distance? number default: `1`
+--- @return Vector.1
+--- @nodiscard
 function Direction.to_vector(direction, distance)
   distance = distance or 1
   local x, y = 0, 0
@@ -75,13 +75,13 @@ function Direction.to_vector(direction, distance)
   return { x, y }
 end
 
----Calculate a two-dimensional vector from a cardinal direction.
----A negative orthogonal distance will move "left" and a positive distance will move "right" from the perspective of the direction.
----@param direction defines.direction
----@param longitudinal number Distance to move in the specified direction.
----@param orthogonal number Distance to move perpendicular to the specified direction.
----@return Vector.1
----@nodiscard
+--- Calculate a two-dimensional vector from a cardinal direction.
+--- A negative orthogonal distance will move "left" and a positive distance will move "right" from the perspective of the direction.
+--- @param direction defines.direction
+--- @param longitudinal number Distance to move in the specified direction.
+--- @param orthogonal number Distance to move perpendicular to the specified direction.
+--- @return Vector.1
+--- @nodiscard
 function Direction.to_vector_2d(direction, longitudinal, orthogonal)
   if direction == defines.direction.north then
     return { orthogonal, -longitudinal }
@@ -94,12 +94,12 @@ function Direction.to_vector_2d(direction, longitudinal, orthogonal)
   else error("Invalid direction: " .. tostring(direction)) end
 end
 
----Calculate the direction of travel from the source to the target.
----@param source AnyPosition
----@param target AnyPosition
----@param round? boolean If true, round to the nearest `defines.direction`.
----@return double
----@nodiscard
+--- Calculate the direction of travel from the source to the target.
+--- @param source AnyPosition
+--- @param target AnyPosition
+--- @param round? boolean If true, round to the nearest `defines.direction`.
+--- @return double
+--- @nodiscard
 function Direction.from_position(source, target, round)
   local deg = math.deg(math.atan2(target.y - source.y, target.x - source.x))
   local direction = (deg + 90) / 45

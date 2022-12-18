@@ -1,7 +1,7 @@
 require("spec/runner")()
 local Area = require("__stdlib2__/area")
-local zero ---@type BoundingBox.0
-local zeroOri ---@type BoundingBox.0
+local zero --- @type BoundingBox.0
+local zeroOri --- @type BoundingBox.0
 
 describe("Area", function()
   before_each(function()
@@ -34,11 +34,11 @@ describe("Area", function()
       end)
 
       it("error", function()
-        ---@diagnostic disable: discard-returns, redundant-parameter
+        --- @diagnostic disable: discard-returns, redundant-parameter
         assert.has_error(function() Area:new { {}, {} } end)
         assert.has_error(function() Area:new(0) end)
         assert.has_error(function() Area:new(0, nil, nil, nil, .5) end)
-        ---@diagnostic enable: discard-returns
+        --- @diagnostic enable: discard-returns
       end)
     end)
   end)

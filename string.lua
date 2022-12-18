@@ -1,10 +1,10 @@
----Extends Lua 5.2 string.
----@class stringlib
+--- Extends Lua 5.2 string.
+--- @class stringlib
 local String = {}
 
 do -- Import lua table functions
-  for name, func in pairs(string) --[[@as fun(): string, function]]do
-    String[name] = func ---@diagnostic disable-line: no-unknown ---@bug Workaround for generic issues in sumneko
+  for name, func in pairs(string) --[[@as fun(): string, function]] do
+    String[name] = func
   end
 
   -- Allow calling as str:XXX()
@@ -16,102 +16,102 @@ local map = require("__stdlib2__/table").map
 local concat, insert = table.concat, table.insert
 local ceil, abs = math.ceil, math.abs
 
----Returns a copy of the string with any leading or trailing whitespace from the string removed.
----@param s string
----@return string
----@nodiscard
+--- Returns a copy of the string with any leading or trailing whitespace from the string removed.
+--- @param s string
+--- @return string
+--- @nodiscard
 function String.trim(s)
   return (s:gsub([[^%s*(.-)%s*$]], "%1"))
 end
 
----Tests if a string starts with a given substring.
----@param s string
----@param start string
----@return boolean
----@nodiscard
+--- Tests if a string starts with a given substring.
+--- @param s string
+--- @param start string
+--- @return boolean
+--- @nodiscard
 function String.starts_with(s, start)
   return s:find(start, 1, true) == 1
 end
 
----Tests if a string ends with a given substring.
----@param s string
----@param ends string
----@return boolean
----@nodiscard
+--- Tests if a string ends with a given substring.
+--- @param s string
+--- @param ends string
+--- @return boolean
+--- @nodiscard
 function String.ends_with(s, ends)
   return #s >= #ends and s:find(ends, #s - #ends + 1, true) and true or false
 end
 
----Tests if a string contains a given substring.
----@param s string
----@param contains string
----@return boolean
----@nodiscard
+--- Tests if a string contains a given substring.
+--- @param s string
+--- @param contains string
+--- @return boolean
+--- @nodiscard
 function String.contains(s, contains)
   return s and s:find(contains) ~= nil
 end
 
----Tests whether a string is empty.
----@param s string
----@return boolean
----@nodiscard
+--- Tests whether a string is empty.
+--- @param s string
+--- @return boolean
+--- @nodiscard
 function String.is_empty(s)
   return s == nil or s == ""
 end
 
----Whether the string only contain alphabetic characters.
----@param s string
----@return boolean
----@nodiscard
+--- Whether the string only contain alphabetic characters.
+--- @param s string
+--- @return boolean
+--- @nodiscard
 function String.is_alpha(s)
   return s:find("^%a+$") == 1
 end
 
----Whether the string only contains digits.
----@param s string
----@return boolean
----@nodiscard
+--- Whether the string only contains digits.
+--- @param s string
+--- @return boolean
+--- @nodiscard
 function String.is_digit(s)
   return s:find("^%d+$") == 1
 end
 
----Whether the string only contains alphanumeric characters.
----@param s string
----@return boolean
----@nodiscard
+--- Whether the string only contains alphanumeric characters.
+--- @param s string
+--- @return boolean
+--- @nodiscard
 function String.is_alphanum(s)
   return s:find("^%w+$") == 1
 end
 
----Whether the string only contains spaces.
----@param s string
----@return boolean
----@nodiscard
+--- Whether the string only contains spaces.
+--- @param s string
+--- @return boolean
+--- @nodiscard
 function String.is_space(s)
   return s:find("^%s+$") == 1
 end
 
----Whether the string only contains lower case characters.
----@param s string
----@return boolean
----@nodiscard
+--- Whether the string only contains lower case characters.
+--- @param s string
+--- @return boolean
+--- @nodiscard
 function String.is_lower(s)
   return s:find("^[%l%s]+$") == 1
 end
 
----Whether the string only contains upper case characters.
----@param s string
----@return boolean
----@nodiscard
+--- Whether the string only contains upper case characters.
+--- @param s string
+--- @return boolean
+--- @nodiscard
 function String.is_upper(s)
   return s:find("^[%u%s]+$") == 1
 end
 
----Convert every word to tile case.
----Here 'word' means chunks of non-space characters.
----@param s string
----@return string
----@nodiscard
+--- Convert every word to tile case.
+--- Here 'word' means chunks of non-space characters.
+--- @param s string
+--- @return string
+--- @nodiscard
 function String.title_case(s)
   return (s:gsub([[(%S)(%S*)]], function(f, r)
     return f:upper() .. r:lower()
@@ -121,21 +121,21 @@ end
 -- local ellipsis = '...'
 -- local n_ellipsis = #ellipsis
 
----Return a shortened version of a string.
----Fits string within width characters. Truncated section can be marked with a truncate string.
+--- Return a shortened version of a string.
+--- Fits string within width characters. Truncated section can be marked with a truncate string.
 ---```lua
----local s = '1234567890'
----s:shorten(5) == `12345`
----s:shorten(-5) == '67890'
----s:shorten(8, ...) == '12345...'
----s:shorten(-8, ...) == '...67890'
----s:shorten(20) == '1234567890'
+--- local s = '1234567890'
+--- s:shorten(5) == `12345`
+--- s:shorten(-5) == '67890'
+--- s:shorten(8, ...) == '12345...'
+--- s:shorten(-8, ...) == '...67890'
+--- s:shorten(20) == '1234567890'
 ---```
----@param s string
----@param width integer Positive truncates the tail, Negative truncates the head.
----@param truncation_string? string
----@return string
----@nodiscard
+--- @param s string
+--- @param width integer Positive truncates the tail, Negative truncates the head.
+--- @param truncation_string? string
+--- @return string
+--- @nodiscard
 function String.truncate(s, width, truncation_string)
   truncation_string = truncation_string or ""
   local t = #truncation_string
@@ -153,32 +153,32 @@ function String.truncate(s, width, truncation_string)
   end
 end
 
----@param this string
----@param other any called with tostring
----@return string
----@nodiscard
+--- @param this string
+--- @param other any called with tostring
+--- @return string
+--- @nodiscard
 function String.concat(this, other)
   return this .. tostring(other)
 end
 
----Concatenate the strings using this string as a delimiter.
+--- Concatenate the strings using this string as a delimiter.
 ---```lua
 ---('-'):join {1,2,3} == '1-2-3'
 ---```
----@param s string
----@param seq any[] Array of string values, or values convertible to strings.
----@nodiscard
+--- @param s string
+--- @param seq any[] Array of string values, or values convertible to strings.
+--- @nodiscard
 function String.join(s, seq)
   return concat(map(seq, tostring), s)
 end
 
----@param s string
----@param w uint
----@param ch string
----@param left boolean
----@param right boolean
----@return string
----@nodiscard
+--- @param s string
+--- @param w uint
+--- @param ch string
+--- @param left boolean
+--- @param right boolean
+--- @return string
+--- @nodiscard
 local function _just(s, w, ch, left, right)
   local n = #s
   if w > n then
@@ -202,32 +202,32 @@ local function _just(s, w, ch, left, right)
   end
 end
 
----left-justify s with width w.
----@param s string the string
----@param w uint width of justification
----@param ch string Optional padding character, defaults to ' '.
----@return string
----@nodiscard
+--- left-justify s with width w.
+--- @param s string the string
+--- @param w uint width of justification
+--- @param ch string Optional padding character, defaults to ' '.
+--- @return string
+--- @nodiscard
 function String.ljust(s, w, ch)
   return _just(s, w, ch, true, false)
 end
 
----right-justify s with width w.
----@param s string the string
----@param w uint width of justification
----@param ch string Optional padding character, defaults to ' '.
----@return string
----@nodiscard
+--- right-justify s with width w.
+--- @param s string the string
+--- @param w uint width of justification
+--- @param ch string Optional padding character, defaults to ' '.
+--- @return string
+--- @nodiscard
 function String.rjust(s, w, ch)
   return _just(s, w, ch, false, true)
 end
 
----center-justify s with width w.
----@param s string the string
----@param w uint width of justification
----@param ch string Optional padding character, defaults to ' '.
----@return string
----@nodiscard
+--- center-justify s with width w.
+--- @param s string the string
+--- @param w uint width of justification
+--- @param ch string Optional padding character, defaults to ' '.
+--- @return string
+--- @nodiscard
 function String.center(s, w, ch)
   return _just(s, w, ch, true, true)
 end
@@ -236,15 +236,15 @@ local noop = function(...)
   return ...
 end
 
----Splits a string into an array.
----Note: Empty split substrings are not included in the resulting table.
+--- Splits a string into an array.
+--- Note: Empty split substrings are not included in the resulting table.
 ---<p>For example, `string.split("foo.bar...", ".", false)` results in the table `{"foo", "bar"}`.
----@param s string the string to split
----@param sep? string [opt="."] string sep the separator to use.
----@param pattern? boolean [opt=false] boolean pattern whether to interpret the separator as a lua pattern or plaintext for the string split
----@param func? fun(string):any function func pass each split string through this function.
----@return any[]
----@nodiscard
+--- @param s string the string to split
+--- @param sep? string [opt="."] string sep the separator to use.
+--- @param pattern? boolean [opt=false] boolean pattern whether to interpret the separator as a lua pattern or plaintext for the string split
+--- @param func? fun(string):any function func pass each split string through this function.
+--- @return any[]
+--- @nodiscard
 function String.split(s, sep, pattern, func)
   sep = sep or "."
   sep = sep ~= "" and sep or "."
@@ -265,11 +265,11 @@ function String.split(s, sep, pattern, func)
   return fields
 end
 
----Return the ordinal suffix for a number.
----@param n number
----@param prepend_number boolean
----@return string the ordinal suffix
----@nodiscard
+--- Return the ordinal suffix for a number.
+--- @param n number
+--- @param prepend_number boolean
+--- @return string the ordinal suffix
+--- @nodiscard
 function String.ordinal_suffix(n, prepend_number)
   if tonumber(n) then
     n = abs(n) % 100
@@ -310,14 +310,14 @@ local exponent_multipliers = {
   ["Y"] = 1000000000000000000000000
 }
 
----Convert a metric string prefix to a number value.
----@param s string
----@return number
----@nodiscard
+--- Convert a metric string prefix to a number value.
+--- @param s string
+--- @return number
+--- @nodiscard
 function String.exponent_number(s)
   if type(s) == "string" then
-    ---@diagnostic disable-next-line: spell-check
-    local value, exp = s:match("([%-+]?[0-9]*%.?[0-9]+)([yzafpnumcdhkMGTPEZY]?)") ---@type number, string?
+    --- @diagnostic disable-next-line: spell-check
+    local value, exp = s:match("([%-+]?[0-9]*%.?[0-9]+)([yzafpnumcdhkMGTPEZY]?)") --- @type number, string?
     exp = exp or " "
     value = (value or 0) * (exponent_multipliers[exp] or 1)
     return value

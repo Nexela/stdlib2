@@ -1,6 +1,6 @@
----@class stdlib.config
+--- @class stdlib.config
 local config = {
-  ---@class stdlib.config.errors
+  --- @class stdlib.config.errors
   error = {
     ["no_area"] = "require('__stdlib2__/area') before using this function",
     ["called_without_self"] = "called without self as the first argument",

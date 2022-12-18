@@ -1,4 +1,4 @@
----@class Benchmark
+--- @class Benchmark
 local Benchmark = {}
 local Benchmark_mt = {}
 
@@ -23,8 +23,8 @@ local units = {
   ["nanoseconds"] = 1000000000
 }
 
----@param unit Benchmark.units?
----@return Benchmark.units?
+--- @param unit Benchmark.units?
+--- @return Benchmark.units?
 local function check_unit(unit)
   if unit and not units[unit] then
     error("Unknown unit: " .. tostring(unit) .. " expected: " .. table_concat(table_keys(unit)), 1)
@@ -32,13 +32,13 @@ local function check_unit(unit)
   return unit
 end
 
----@param func function
----@param ... any
----@return Benchmark
+--- @param func function
+--- @param ... any
+--- @return Benchmark
 local function new(func, ...)
   assert(type(func) == "function", "func must be a function")
 
-  ---@type Benchmark
+  --- @type Benchmark
   local new_benchmark = {
     benchmarks = {},
     options = {
@@ -51,13 +51,13 @@ local function new(func, ...)
   }
 
 
-  local benchmark = { func = func, params = { ... }, elapsed = {} } ---@type Benchmark.benchmark
+  local benchmark = { func = func, params = { ... }, elapsed = {} } --- @type Benchmark.benchmark
 
   table_insert(new_benchmark.benchmarks, benchmark)
   return setmetatable(new_benchmark, Benchmark_mt)
 end
 
----@param times? integer
+--- @param times? integer
 function Benchmark:run(times)
   times = times or self.options.times
   assert(times > 0, "times must be greater than 0")
@@ -83,7 +83,7 @@ function Benchmark:run(times)
   return self
 end
 
----@param index integer?
+--- @param index integer?
 function Benchmark:reset(index)
   if index then
     assert(index > 0 and index <= #self.benchmarks, "index must be between 1 and " .. #self.benchmarks)
@@ -97,7 +97,7 @@ function Benchmark:reset(index)
   end
 end
 
----@param options Benchmark.options
+--- @param options Benchmark.options
 function Benchmark:set(options)
   self.options.unit = check_unit(options.unit) or self.options.unit
   self.options.dec_places = options.dec_places or self.options.dec_places
@@ -106,9 +106,9 @@ function Benchmark:set(options)
   return self
 end
 
-do ---@block Strings
-  ---@param results {[integer]: string}
-  ---@param comparisons {[integer]: number}
+do --- @block Strings
+  --- @param results {[integer]: string}
+  --- @param comparisons {[integer]: number}
   local function append_comparisons(results, comparisons)
     for i in ipairs(results) do
       for j in ipairs(results) do
@@ -128,11 +128,11 @@ do ---@block Strings
     end
   end
 
-  ---@param self Benchmark
-  ---@param unit? Benchmark.units
-  ---@param dec_places? integer
-  ---@return table
-  ---@nodiscard
+  --- @param self Benchmark
+  --- @param unit? Benchmark.units
+  --- @param dec_places? integer
+  --- @return table
+  --- @nodiscard
   local function build_benchmarks(self, unit, dec_places)
     if not self.has_ever_ran then self:run() end
 
@@ -173,11 +173,11 @@ do ---@block Strings
     return results
   end
 
-  ---@param index? integer
-  ---@param unit? Benchmark.units
-  ---@param dec_places? integer
-  ---@return string
-  ---@nodiscard
+  --- @param index? integer
+  --- @param unit? Benchmark.units
+  --- @param dec_places? integer
+  --- @return string
+  --- @nodiscard
   function Benchmark:tostring(index, unit, dec_places)
     if not index or index == 0 then
       return table_concat(build_benchmarks(self, unit, dec_places), "\n")
@@ -191,49 +191,49 @@ do ---@block Strings
   end
 end
 
----@param index? integer
----@param unit? Benchmark.units
----@param dec_places? integer
+--- @param index? integer
+--- @param unit? Benchmark.units
+--- @param dec_places? integer
 function Benchmark:print(index, unit, dec_places)
   print(self:tostring(index, unit, dec_places))
   return self
 end
 
----@param func function
----@param ... any
+--- @param func function
+--- @param ... any
 function Benchmark:against(func, ...)
   assert(type(func) == "function", "func must be a function")
   table_insert(self.benchmarks, { func = func, params = { ... } })
   return self
 end
 
-do ---@block Aux functions
-  ---@param func function
-  ---@param ... any
+do --- @block Aux functions
+  --- @param func function
+  --- @param ... any
   function Benchmark:before(func, ...)
     assert(type(func) == "function", "func must be a function")
     self.benchmarks[#self.benchmarks].run_before = { func = func, params = { ... } }
     return self
   end
 
-  ---@param func function
-  ---@param ... any
+  --- @param func function
+  --- @param ... any
   function Benchmark:before_each(func, ...)
     assert(type(func) == "function", "func must be a function")
     self.run_before_each = { func = func, params = { ... } }
     return self
   end
 
-  ---@param func function
-  ---@param ... any
+  --- @param func function
+  --- @param ... any
   function Benchmark:after(func, ...)
     assert(type(func) == "function", "func must be a function")
     self.benchmarks[#self.benchmarks].run_after = { func = func, params = { ... } }
     return self
   end
 
-  ---@param func function
-  ---@param ... any
+  --- @param func function
+  --- @param ... any
   function Benchmark:after_each(func, ...)
     assert(type(func) == "function", "func must be a function")
     self.run_afer_each = { func = func, params = { ... } }
@@ -241,7 +241,7 @@ do ---@block Aux functions
   end
 end
 
-do ---@block Metamethods
+do --- @block Metamethods
   Benchmark_mt.__index = Benchmark
   Benchmark_mt.__tostring = Benchmark.tostring
   Benchmark_mt.__call = Benchmark.run
@@ -252,34 +252,34 @@ end
 
 return new
 
----@class Benchmark
----@field benchmarks {[integer]: Benchmark.benchmark}
----@field run_before_each Benchmark.other_function?
----@field run_after_each Benchmark.other_function?
----@field has_ever_ran boolean
----@field options Benchmark.options
----@operator call:Benchmark Runs the benchmarks.
+--- @class Benchmark
+--- @field benchmarks {[integer]: Benchmark.benchmark}
+--- @field run_before_each Benchmark.other_function?
+--- @field run_after_each Benchmark.other_function?
+--- @field has_ever_ran boolean
+--- @field options Benchmark.options
+--- @operator call:Benchmark Runs the benchmarks.
 
----@class Benchmark.benchmark
----@field func function
----@field elapsed {[integer]: number}
----@field params {[integer]: any}
----@field ran boolean
----@field run_before Benchmark.other_function?
----@field run_after Benchmark.other_function?
+--- @class Benchmark.benchmark
+--- @field func function
+--- @field elapsed {[integer]: number}
+--- @field params {[integer]: any}
+--- @field ran boolean
+--- @field run_before Benchmark.other_function?
+--- @field run_after Benchmark.other_function?
 
----@class Benchmark.other_function
----@field func function
----@field params {[integer]: any}
+--- @class Benchmark.other_function
+--- @field func function
+--- @field params {[integer]: any}
 
----@class Benchmark.options
----@field unit Benchmark.units
----@field times integer
----@field dec_places integer
----@field avg_unit Benchmark.units
+--- @class Benchmark.options
+--- @field unit Benchmark.units
+--- @field times integer
+--- @field dec_places integer
+--- @field avg_unit Benchmark.units
 
----@alias Benchmark.units
----| 'seconds'
----| 'milliseconds'
----| 'microseconds'
----| 'nanoseconds'
+--- @alias Benchmark.units
+--- | 'seconds'
+--- | 'milliseconds'
+--- | 'microseconds'
+--- | 'nanoseconds'

@@ -48,7 +48,7 @@ local VERSION_PATTERN = "^(%d+)%.(%d+)%.(%d+)$"
 --- @return number
 local function as_version_number(version)
   if version.version then return version.version end
-  ---@cast version -Version
+  --- @cast version -Version
   local major, minor, patch = string.match(version, VERSION_PATTERN)
   return (major * 65536 + minor) * 65536 + patch
 end
@@ -198,8 +198,8 @@ end
 --- @return Version
 function Version.new(version)
   if version.version then
-    ---@cast version -string
-    local new = {} ---@type Version
+    --- @cast version -string
+    local new = {} --- @type Version
     for k, v in pairs(version) do
       new[k] = v
     end
@@ -207,7 +207,7 @@ function Version.new(version)
   end
 
   assert(type(version) == "string", ("%s is not a string"):format(version))
-  ---@cast version -Version
+  --- @cast version -Version
   local major, minor, patch = string.match(version, VERSION_PATTERN)
   assert(major and minor and patch, ("%s is not a valid version"):format(version))
 
@@ -234,12 +234,12 @@ end
 --- @return Version.range
 function Version.range(from, to)
   assert(from or to, "At least one parameter is required")
-  from = Version.new(from or "0.0.0") ---@cast from Version
-  to = Version.new(to or from) ---@cast to Version
+  from = Version.new(from or "0.0.0") --- @cast from Version
+  to = Version.new(to or from) --- @cast to Version
   assert(from <= to, "from must be less than to")
   --- @class Version.range
   local range = {
-    from = from, ---@type Version
+    from = from, --- @type Version
     to = to --- @type Version
   }
   return setmetatable(range, version_range_mt)
@@ -255,8 +255,8 @@ end
 function Version.set(v1, v2)
   --- @class Version.set
   local set = {
-    ok = {}, ---@type Version.range[]
-    nok = {} ---@type Version.range[]
+    ok = {}, --- @type Version.range[]
+    nok = {} --- @type Version.range[]
   }
   return setmetatable(set, version_set_mt):allowed(v1, v2)
 end

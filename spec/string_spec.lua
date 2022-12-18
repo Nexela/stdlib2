@@ -47,7 +47,7 @@ describe("String Spec", function()
   end)
 
   it("should test for empty strings", function()
-    assert.is_true(string.is_empty()) ---@diagnostic disable-line: missing-parameter
+    assert.is_true(string.is_empty()) --- @diagnostic disable-line: missing-parameter
     assert.is_true(string.is_empty(""))
 
     assert.is_false(string.is_empty(" "))

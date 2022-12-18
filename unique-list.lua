@@ -318,7 +318,7 @@ end
 function create_list(list, in_place)
   local dictionary = {}
   local new_list = create_list_internal(list, dictionary, in_place)
-  ---@cast new_list -nil
+  --- @cast new_list -nil
   if new_list.__class == "unique_list" then return new_list --[[@as unique_list]] end
 
   for index, value in ipairs(new_list) do dictionary[value] = index end
